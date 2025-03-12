@@ -1,3 +1,6 @@
 output/
-pngsuit/
+output/*
+pngsuite/
+pngsuite/*
 base_input/
+base_input/*
