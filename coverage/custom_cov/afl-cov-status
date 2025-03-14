@@ -1,0 +1,3 @@
+afl_cov_pid     : 49
+afl_cov_version : 0.7.0
+command_line    : /usr/local/bin/afl-cov -d /fuzzing_lodepng/output --coverage-cmd /fuzzing_lodepng/coverage/source/main @@ --code-dir /fuzzing_lodepng/coverage/source --enable-branch-coverage

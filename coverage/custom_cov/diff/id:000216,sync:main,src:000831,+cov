@@ -1,0 +1,42 @@
+diff id:000215,sync:main,src:000830 -> id:000216,sync:main,src:000831,+cov
+Src file: /fuzzing_lodepng/coverage/source/lodepng.cpp
+  New 'function' coverage: _Z23lodepng_chunk_ancillaryPKh()
+  New 'function' coverage: _ZL22lodepng_chunk_reservedPKh()
+  New 'function' coverage: _ZL29lodepng_chunk_type_name_validPKh()
+  New 'line' coverage: 2737
+  New 'line' coverage: 2738
+  New 'line' coverage: 2739
+  New 'line' coverage: 2740
+  New 'line' coverage: 2741
+  New 'line' coverage: 2748
+  New 'line' coverage: 2749
+  New 'line' coverage: 2758
+  New 'line' coverage: 2759
+  New 'line' coverage: 517
+  New 'line' coverage: 518
+  New 'line' coverage: 519
+  New 'line' coverage: 520
+  New 'line' coverage: 521
+  New 'line' coverage: 536
+  New 'line' coverage: 537
+  New 'line' coverage: 538
+  New 'line' coverage: 539
+  New 'line' coverage: 540
+  New 'line' coverage: 5407
+  New 'line' coverage: 541
+  New 'line' coverage: 5410
+  New 'line' coverage: 5413
+  New 'line' coverage: 5416
+  New 'line' coverage: 5419
+  New 'line' coverage: 5422
+  New 'line' coverage: 5425
+  New 'line' coverage: 5428
+  New 'line' coverage: 5433
+  New 'line' coverage: 5436
+  New 'line' coverage: 5441
+  New 'line' coverage: 5445
+  New 'line' coverage: 5447
+  New 'line' coverage: 6934
+Src file: /fuzzing_lodepng/coverage/source/main.cpp
+  New 'line' coverage: 287
+  New 'line' coverage: 288

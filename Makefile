@@ -11,12 +11,12 @@ LDFLAGS =
 
 FUZZER = afl-fuzz
 
-RESUME = #AFL_AUTORESUME=1
-CUSTOM_MUTATORS = AFL_CUSTOM_MUTATOR_LIBRARY="/fuzzing_lodepng/custom_mutators/lib_post_program.so"
+RESUME = AFL_AUTORESUME=1
+CUSTOM_MUTATORS = #AFL_CUSTOM_MUTATOR_LIBRARY="/fuzzing_lodepng/custom_mutators/lib_post_program.so"
 
-MAIN_FUZZER_FLAGS = -t 100  -c 0 -i input -o output -x /AFLplusplus/dictionaries/png.dict
-WORKER_FUZZER_FLAGS = -t 100 -c 0 -i input -o output -x /AFLplusplus/dictionaries/png.dict
-CMPLOG_FUZZER_FLAGS = -t 100 -c 0 -i input -o output -x /AFLplusplus/dictionaries/png.dict
+MAIN_FUZZER_FLAGS = -t 100  -c 0 -i - -o output -x /AFLplusplus/dictionaries/png.dict
+WORKER_FUZZER_FLAGS = -t 100 -c 0 -i - -o output -x /AFLplusplus/dictionaries/png.dict
+CMPLOG_FUZZER_FLAGS = -t 100 -c 0 -i - -o output -x /AFLplusplus/dictionaries/png.dict
 
 cmploger: main.cpp lodepng.cpp
 	AFL_LLVM_CMPLOG=1 \

@@ -1,0 +1,30 @@
+diff id:000000,time:0,execs:0,orig:oi1n0g16.png -> id:000001,time:0,execs:0,orig:oi1n2c16.png
+Src file: /fuzzing_lodepng/coverage/source/lodepng.cpp
+  New 'line' coverage: 4455
+  New 'line' coverage: 4456
+  New 'line' coverage: 4457
+  New 'line' coverage: 4460
+  New 'line' coverage: 4461
+  New 'line' coverage: 4462
+diff id:000000,time:0,execs:0,orig:oi1n0g16.png -> id:000001,time:0,execs:0,orig:oi1n2c16.png
+Src file: /fuzzing_lodepng/coverage/source/lodepng.cpp
+  New 'line' coverage: 3701
+  New 'line' coverage: 3702
+  New 'line' coverage: 3703
+  New 'line' coverage: 3704
+  New 'line' coverage: 3705
+  New 'line' coverage: 4539
+  New 'line' coverage: 4540
+  New 'line' coverage: 4541
+  New 'line' coverage: 4542
+  New 'line' coverage: 4543
+  New 'line' coverage: 4544
+  New 'line' coverage: 4545
+  New 'line' coverage: 4546
+  New 'line' coverage: 4547
+  New 'line' coverage: 4548
+  New 'line' coverage: 4549
+  New 'line' coverage: 4550
+  New 'line' coverage: 4551
+  New 'line' coverage: 4552
+  New 'line' coverage: 4553

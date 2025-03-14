@@ -1,0 +1,5 @@
+diff id:000155,sync:main,src:000137 -> id:000156,sync:main,src:000138
+Src file: /fuzzing_lodepng/coverage/source/lodepng.cpp
+  New 'line' coverage: 4503
+  New 'line' coverage: 4504
+  New 'line' coverage: 4505
