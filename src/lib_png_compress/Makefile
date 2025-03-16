@@ -1,5 +1,5 @@
 # dirictories
-ROOT = ../../..
+ROOT = ../..
 LIB = $(ROOT)/lib
 INCLUDE = $(ROOT)/include
 
@@ -29,7 +29,7 @@ clean:
 		rm -f *.o $(TARGET)
 
 install: $(CFILES)
-		cp $(TARGET) $(LIB)
+		cp png_processing.h $(INCLUDE)
 		make clean
 
 all: $(TARGET) install
