@@ -17,15 +17,8 @@ LD_FLAGS =
 
 
 # compile
-TARGET = png_random.o
-CFILES = png_random.c
-
-test.o: test.c
-		$(CC) $(CFLAGS) $^ -o $@
-
-test: test.o $(LIB)/png_random.o $(LIB)/*.o $(LIB)/afl_vector.a
-		$(CC) $^ -o $@
-
+TARGET = lib_png_write.o
+CFILES = png_write.c
 
 $(TARGET): $(CFILES)
 		$(CC) $(CFLAGS) $^ -o $@ $(LD_FLAGS)
@@ -33,10 +26,10 @@ $(TARGET): $(CFILES)
 
 
 clean:
-		rm -f *.o $(TARGET) test
+		rm -f *.o $(TARGET)
 
 install: $(TARGET)
-		cp png_random.h $(INCLUDE)		
+		cp png_write.h $(INCLUDE)
 		cp $(TARGET) $(LIB)
 		make clean
 

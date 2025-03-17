@@ -1,7 +1,42 @@
 #include <math.h>
 #include <stdlib.h>
-#include "png_random_config.h"
+#include "png_random.h"
 #include "png_processing.h"
+
+int channels_count(int color_type) {
+    int channels = 0;
+
+    switch (color_type) {
+        case PNG_COLOR_TYPE_GRAY:
+            channels = 1;
+            break;
+        case PNG_COLOR_TYPE_RGB:
+            channels = 3;
+            break;
+        case PNG_COLOR_TYPE_PALETTE:
+            channels = 1;
+            break;
+        case PNG_COLOR_TYPE_GRAY_ALPHA:
+            channels = 2;
+            break;
+        case PNG_COLOR_TYPE_RGBA:
+            channels = 4;
+            break;
+        default:
+            return -1; 
+    }
+
+    return channels;
+}
+
+int calculate_bytes_per_pixel(int color_type, int bit_depth) {
+    int channels = channels_count(color_type);
+    if (channels_count < 0) 
+        return -1;
+
+    return (bit_depth * channels + 7) / 8; 
+}
+
 
 size_t rand_in_range(size_t min, size_t max) {
     return min + (rand() % (max - min + 1));
@@ -59,15 +94,16 @@ int png_set_random_IHDR(png_processing_t *png_prc, size_t pic_size) {
     
     // pixel count
     if (bit_depth < 8) {
+        pixel_bytes = 1;
         pixel_count = (pic_size * (8 / bit_depth)) / channels_count(color_type);
     } else {
         pixel_bytes = calculate_bytes_per_pixel(color_type, bit_depth);
-        if (pixel_count < 0)
+        if (pixel_bytes < 0)
             return -1;
         pixel_count = pic_size / pixel_bytes;
     }
 
-    if (get_random_hw(pixel_bytes, &height, &width) < 0)
+    if (get_random_hw(pixel_count, &height, &width) < 0)
         return -1;
 
     compress_method = COMPRESS_METHOD[rand() % sizeof(COMPRESS_METHOD)];
@@ -84,4 +120,6 @@ int png_set_random_IHDR(png_processing_t *png_prc, size_t pic_size) {
 
     return 0;       
 }
+
+
 

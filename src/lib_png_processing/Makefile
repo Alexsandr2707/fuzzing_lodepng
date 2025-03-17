@@ -7,7 +7,7 @@ INCLUDE = $(ROOT)/include
 
 # compiler 
 CC = clang
-CFLAGS = -fPIC -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
+CFLAGS = -c -fPIC -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
 
 
 
@@ -17,8 +17,8 @@ LD_FLAGS =
 
 
 # compile
-TARGET = lib_compress_png.so
-CFILES = compress_png.c
+TARGET = lib_png_processing.o
+CFILES = png_processing.c
 
 $(TARGET): $(CFILES)
 		$(CC) $(CFLAGS) $^ -o $@ $(LD_FLAGS)
@@ -28,8 +28,9 @@ $(TARGET): $(CFILES)
 clean:
 		rm -f *.o $(TARGET)
 
-install: $(CFILES)
+install: $(TARGET)
 		cp png_processing.h $(INCLUDE)
+		cp $(TARGET) $(LIB)
 		make clean
 
 all: $(TARGET) install
