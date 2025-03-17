@@ -13,18 +13,18 @@ enum {
     STATIC,
 };
 
-typedef struct AFL_Vector {
+typedef struct AFLVector {
     void *data;
     size_t len;
     size_t size;
     size_t max_size;
-} AFL_Vector;
+} AFLVector;
 
-int is_valid_afl_vector(AFL_Vector *vector);
-AFL_Vector *malloc_afl_vector(void);
-int init_afl_vector(AFL_Vector *vector, void *data, size_t len, size_t size, size_t max_size);
-void deinit_afl_vector(AFL_Vector *vector, int flag);
-void print_afl_vector_info(AFL_Vector *vector);
-int write_to_afl_vector(AFL_Vector *vector, void *buf, size_t buf_size);
+int is_valid_afl_vector(AFLVector *vector);
+AFLVector *malloc_afl_vector(void);
+int init_afl_vector(AFLVector *vector, void *data, size_t len, size_t size, size_t max_size);
+void deinit_afl_vector(AFLVector *vector, int flag);
+void print_afl_vector_info(AFLVector *vector);
+AFLVector *write_to_afl_vector(AFLVector *vector, void *buf, size_t buf_size);
 
 #endif

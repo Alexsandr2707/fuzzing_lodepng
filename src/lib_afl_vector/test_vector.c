@@ -4,7 +4,8 @@
 
 int main(void) {
     char s[] = "Hellow world!\n";
-    AFL_Vector *afl_vector = malloc_afl_vector();
+    AFLVector aflv = {};
+    AFLVector *afl_vector = &aflv;
     if (afl_vector == NULL)
         return -1;
 
@@ -13,8 +14,10 @@ int main(void) {
     print_afl_vector_info(afl_vector);
     write_to_afl_vector(afl_vector, s, sizeof(s));
     print_afl_vector_info(afl_vector);
-    write_to_afl_vector(afl_vector, s, sizeof(s));
+    for (int i = 0; i < 10; ++i) 
+        write_to_afl_vector(afl_vector, s, sizeof(s));
     print_afl_vector_info(afl_vector);
     printf("%s%s\n", afl_vector->data, afl_vector->data + sizeof(s));
+    deinit_afl_vector(afl_vector, STATIC);
 }
 

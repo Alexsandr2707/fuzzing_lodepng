@@ -5,14 +5,14 @@
 #include "afl_vector.h"
 #include "alloc-inl.h"
 
-int is_valid_afl_vector(AFL_Vector *vector);
-AFL_Vector *malloc_afl_vector(void);
-int init_afl_vector(AFL_Vector *vector, void *data, size_t len, size_t size, size_t max_size);
-void deinit_afl_vector(AFL_Vector *vector, int flag);
-void print_afl_vector_info(AFL_Vector *vector);
-int write_to_afl_vector(AFL_Vector *vector, void *buf, size_t buf_size);
+int is_valid_afl_vector(AFLVector *vector);
+AFLVector *malloc_afl_vector(void);
+int init_afl_vector(AFLVector *vector, void *data, size_t len, size_t size, size_t max_size);
+void deinit_afl_vector(AFLVector *vector, int flag);
+void print_afl_vector_info(AFLVector *vector);
+AFLVector *write_to_afl_vector(AFLVector *vector, void *buf, size_t buf_size);
 
-int is_valid_afl_vector(AFL_Vector *vector) {
+int is_valid_afl_vector(AFLVector *vector) {
     if ((vector == NULL) || 
         (vector->len > vector->size) || 
         (vector->size > vector->max_size) ||
@@ -37,8 +37,8 @@ int init_afl_buf(void **buf) {
     return 0;
 }
 
-AFL_Vector *malloc_afl_vector(void) {
-    AFL_Vector *vector = calloc(1, sizeof(*vector));
+AFLVector *malloc_afl_vector(void) {
+    AFLVector *vector = calloc(1, sizeof(*vector));
     if (vector == NULL) 
         return NULL;
 
@@ -48,7 +48,7 @@ AFL_Vector *malloc_afl_vector(void) {
     return vector;
 }
 
-int init_afl_vector(AFL_Vector *vector, void *data, size_t len, size_t size, size_t max_size) {
+int init_afl_vector(AFLVector *vector, void *data, size_t len, size_t size, size_t max_size) {
     if (max_size == 0)
         max_size = DEF_MAX_SIZE;
 
@@ -76,7 +76,7 @@ int init_afl_vector(AFL_Vector *vector, void *data, size_t len, size_t size, siz
     return 0;
 }
 
-void deinit_afl_vector(AFL_Vector *vector, int flag) {
+void deinit_afl_vector(AFLVector *vector, int flag) {
     if (vector == NULL)
         return;
 
@@ -89,7 +89,7 @@ void deinit_afl_vector(AFL_Vector *vector, int flag) {
     }
 }
 
-void print_afl_vector_info(AFL_Vector *vector) {
+void print_afl_vector_info(AFLVector *vector) {
     fprintf(stdout, "----- PRINT AFL VECTOR -----\n");
     if (vector == NULL) {
         fprintf(stdout, "VECTOR IS NULL\n");
@@ -110,19 +110,19 @@ void print_afl_vector_info(AFL_Vector *vector) {
     fprintf(stdout, "----------------------------\n");
 }
     
-int write_to_afl_vector(AFL_Vector *vector, void *buf, size_t buf_size) {
+AFLVector *write_to_afl_vector(AFLVector *vector, void *buf, size_t buf_size) {
     if (!is_valid_afl_vector(vector) || buf == NULL) {
-        return -1;
+        return NULL;
     }
 
     size_t new_size = vector->len + buf_size;
     if (new_size > vector->max_size) {
-        return -1;
+        return NULL;
     }
 
     void *new_data = afl_realloc(&(vector->data), new_size);
     if (new_data == NULL)
-        return -1;
+        return NULL;
 
     vector->data = new_data;
     vector->size = afl_alloc_bufsize(new_data);
@@ -130,6 +130,6 @@ int write_to_afl_vector(AFL_Vector *vector, void *buf, size_t buf_size) {
     memcpy(vector->data + vector->len, buf, buf_size);
     vector->len += buf_size;
 
-    return 0;
+    return vector;
 }
 
