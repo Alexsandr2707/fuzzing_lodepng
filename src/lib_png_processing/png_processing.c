@@ -25,6 +25,9 @@ png_processing_t *create_png_processing(void) {
     png_prc->info = info;
     init_afl_vector(&(png_prc->png_out), NULL, 0, 0, 0);
 
+    png_prc->chunks[PNG_CHUNK_IHDR].is_valid = IS_VALID;
+    png_prc->chunks[PNG_CHUNK_IDAT].is_valid = IS_VALID;
+    png_prc->chunks[PNG_CHUNK_IEND].is_valid = IS_VALID;
     return png_prc;
 }
 

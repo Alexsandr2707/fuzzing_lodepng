@@ -29,7 +29,7 @@ png_bytep *make_row_pointers(png_processing_t *png_prc, png_bytep pic) {
 }
 
 
-int write_png(png_processing_t *png_prc, png_bytep pic) {
+int png_write(png_processing_t *png_prc, png_bytep pic) {
     AFLVector *vector = &(png_prc->png_out);
     png_bytep *row_pointers = make_row_pointers(png_prc, pic);
     if (row_pointers == NULL)

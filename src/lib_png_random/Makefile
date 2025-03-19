@@ -12,7 +12,7 @@ CFLAGS = -c -fPIC -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
 
 
 #linker
-LD_FLAGS = 
+LD_FLAGS = -lpng 
 
 
 
@@ -24,11 +24,11 @@ test.o: test.c
 		$(CC) $(CFLAGS) $^ -o $@
 
 test: test.o $(LIB)/png_random.o $(LIB)/*.o $(LIB)/afl_vector.a
-		$(CC) $^ -o $@
+		$(CC) $^ -o $@ $(LD_FLAGS)
 
 
 $(TARGET): $(CFILES)
-		$(CC) $(CFLAGS) $^ -o $@ $(LD_FLAGS)
+		$(CC) $(CFLAGS) $^ -o $@ 
 
 
 
