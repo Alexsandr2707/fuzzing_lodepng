@@ -23,16 +23,21 @@ png_processing_t *create_png_processing(void) {
 
     png_prc->png = png;
     png_prc->info = info;
-    init_afl_vector(&(png_prc->png_out), NULL, 0, 0, 0);
+    init_afl_vector(&(png_prc->png_out), NULL, 0, 0, AFL_VECTOR_HARD_MAX_SIZE);
 
-    png_prc->chunks[PNG_CHUNK_IHDR].is_valid = IS_VALID;
-    png_prc->chunks[PNG_CHUNK_IDAT].is_valid = IS_VALID;
-    png_prc->chunks[PNG_CHUNK_IEND].is_valid = IS_VALID;
+    png_prc->chunks[PNG_CHUNK_IHDR].required = IS_REQUIRED;
+    png_prc->chunks[PNG_CHUNK_IDAT].required = IS_REQUIRED;
+    png_prc->chunks[PNG_CHUNK_IEND].required = IS_REQUIRED;
     return png_prc;
 }
 
 void destroy_png_processing(png_processing_t *png_prc) {
     png_destroy_write_struct(&(png_prc->png), &(png_prc->info));
     deinit_afl_vector(&(png_prc->png_out), STATIC);
+    for (int i = 0; i < CHUNK_COUNT; ++i) {
+        if (png_prc->chunks[i].info != NULL) {
+            free(png_prc->chunks[i].info);
+        }
+    }
     free(png_prc);
 }

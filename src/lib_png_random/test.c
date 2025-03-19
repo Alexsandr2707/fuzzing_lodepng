@@ -29,16 +29,23 @@ void *get_random_data(size_t size) {
 }
 
 void write_png_test() {
-    size_t pic_size = rand() % 10000000;
+    size_t pic_size = rand() % 1000;
+    printf("pic_size = %lu\n", pic_size);
+
     void *pic = get_random_data(pic_size);
     if (pic == NULL) 
         return;
     png_processing_t *png_prc = create_png_processing(); 
-    png_set_random_IHDR(png_prc, pic_size);
-    print_IHDR_info(png_prc);
-    
+//    if (png_config_IHDR(png_prc, pic_size) < 0) 
+//        return;
+    png_set_random_chunks(png_prc);
+
+    png_config_chunks(png_prc, pic_size);
+    print_png_info(png_prc);
+
     png_write(png_prc, pic);
     
+    print_afl_vector_info(&(png_prc->png_out));
     int fd = open("output.png", O_CREAT | O_TRUNC | O_WRONLY, 0666);
 
     write(fd, png_prc->png_out.data, png_prc->png_out.len);

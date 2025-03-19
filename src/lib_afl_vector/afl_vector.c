@@ -50,14 +50,14 @@ AFLVector *malloc_afl_vector(void) {
 
 int init_afl_vector(AFLVector *vector, void *data, size_t len, size_t size, size_t max_size) {
     if (max_size == 0)
-        max_size = DEF_MAX_SIZE;
+        max_size = AFL_VECTOR_DEF_MAX_SIZE;
 
     if ((vector == NULL) || 
         (len > size) ||
         (data == NULL && len > 0) ||
         (data != NULL && afl_alloc_bufsize(&data) > size) ||
         (size > max_size) || 
-        (max_size > HARD_MAX_SIZE)) 
+        (max_size > AFL_VECTOR_HARD_MAX_SIZE)) 
             return -1;
 
     void *new_data = NULL;;

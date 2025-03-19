@@ -139,10 +139,10 @@ void print_interlace_method(int interlace_method) {
 
 
 void print_IHDR_info(png_processing_t *png_prc) {
-    if (png_prc == NULL)
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_IHDR].required != IS_REQUIRED)
         return;
 
-    printf("----- print IHDR -----\n");
+    printf("----- print IHDR info -----\n");
 
     int height = png_get_image_height(png_prc->png, png_prc->info);
     int width = png_get_image_width(png_prc->png, png_prc->info);
@@ -162,8 +162,43 @@ void print_IHDR_info(png_processing_t *png_prc) {
 
     int interlace_method = png_get_interlace_type(png_prc->png, png_prc->info);
     print_interlace_method(interlace_method);
+    
+    printf("----- print IHDR info DONE -----\n");
+}
 
-    printf("----- print IHDR DONE -----\n");
+void print_bKGD_info(png_processing_t *png_prc) {
+    printf("----- print bKGD info -----\n");
+    png_color_16p background;
+
+    png_structp png = png_prc->png;
+    png_infop info = png_prc->info;
+
+    if (png_get_bKGD(png, info, &background)) {
+        png_byte color_type = png_get_color_type(png, info);
+
+        if (color_type == PNG_COLOR_TYPE_PALETTE) {
+            printf("Background color index: %d\n", background->index);
+        } else if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
+            printf("Background gray value: %d\n", background->gray);
+        } else if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
+            printf("Background RGB color: (%d, %d, %d)\n", background->red, background->green, background->blue);
+        }
+    } else {
+        printf("No bKGD chunk found in the PNG file.\n");
+    }
+
+    printf("----- print bKGD info DONE -----\n");
+}
+
+void print_png_info(png_processing_t *png_prc) {
+    printf("---------- print PNG info -----------\n\n");
+    print_IHDR_info(png_prc);
+    printf("\n");
+
+    print_bKGD_info(png_prc);
+    printf("\n");
+    
+    printf("---------- print PNG info DONE -----------\n\n");
 }
 
 // pixel_count == height * width (not real size of picture)
@@ -172,11 +207,11 @@ int get_random_hw(size_t pixel_count, size_t *height, size_t *width) {
         return -1;
 
     if (MIN_HEIGHT <= MIN_WIDTH) {
-        *height = rand_in_range(max(sqrt(pixel_count), MIN_HEIGHT), min(sqrt(pixel_count), MAX_HEIGHT));
-        *width = pixel_count / *height;
+        *height = rand_in_range(MIN_HEIGHT, min(sqrt(pixel_count), MAX_HEIGHT));
+        *width = min(pixel_count / *height, MAX_WIDTH);
     } else {
-        *width = rand_in_range(max(sqrt(pixel_count), MIN_WIDTH), min(sqrt(pixel_count), MAX_WIDTH));
-        *height = pixel_count / *width;
+        *width = rand_in_range(MIN_WIDTH, min(sqrt(pixel_count), MAX_WIDTH));
+        *height = min(pixel_count / *width, MAX_HEIGHT);
     }
 
     return 0;
@@ -184,7 +219,7 @@ int get_random_hw(size_t pixel_count, size_t *height, size_t *width) {
 
 
 // also set compression level
-int png_set_random_IHDR(png_processing_t *png_prc, size_t pic_size) {
+int png_config_IHDR(png_processing_t *png_prc, size_t pic_size) {
     if (png_prc == NULL)
         return -1;
 
@@ -195,7 +230,7 @@ int png_set_random_IHDR(png_processing_t *png_prc, size_t pic_size) {
     // color type
     color_type = COLOR_TYPE[rand() % COLOR_TYPE_SIZE];
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
-        png_prc->chunks[PNG_CHUNK_sPLT].is_valid = IS_VALID;
+        png_prc->chunks[PNG_CHUNK_sPLT].required = IS_REQUIRED;
     }
 
     // bit_depth
@@ -246,8 +281,74 @@ int png_set_random_chunks(png_processing_t *png_prc) {
         return -1;
 
     for (int i = 0; i < CHUNK_COUNT; ++i) {
-        png_prc->chunks[i].is_valid |= rand() % 2;
+        png_prc->chunks[i].required |= rand() % 2;
     }
 
     return 0;     
+}
+
+int png_config_bKGD(png_processing_t *png_prc) {
+    png_color_16 background;
+    int color_type = png_get_color_type(png_prc->png, png_prc->info);
+
+    if (color_type == PNG_COLOR_TYPE_PALETTE)
+        background.index = rand_in_range(MIN_COLOR, MAX_COLOR);
+    else if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA){
+        background.gray = rand_in_range(MIN_COLOR, MAX_COLOR);
+    } else {
+        background.red = rand_in_range(MIN_COLOR, MAX_COLOR);
+        background.green = rand_in_range(MIN_COLOR, MAX_COLOR);
+        background.blue = rand_in_range(MIN_COLOR, MAX_COLOR);
+    }
+
+    png_set_bKGD(png_prc->png, png_prc->info, &background);
+    return 0;
+}
+
+int png_config_sPLT(png_processing_t *png_prc) {
+    if (png_prc->chunks[PNG_CHUNK_sPLT].required != IS_REQUIRED) 
+        return -1;
+
+    png_color *palette = png_prc->chunks[PNG_CHUNK_sPLT].info;
+    if (palette == NULL) {
+        palette = malloc(sizeof(palette) * PALETTE_SIZE);
+        if (palette == NULL)
+            return -1;
+
+        png_prc->chunks[PNG_CHUNK_sPLT].info = palette;
+    }
+
+
+    for (int i = 0; i < PALETTE_SIZE; ++i) {
+        palette[i].red = rand_in_range(MIN_COLOR, MAX_COLOR);
+        palette[i].green = rand_in_range(MIN_COLOR ,MAX_COLOR);
+        palette[i].blue = rand_in_range(MIN_COLOR, MAX_COLOR);
+    }
+
+    png_set_PLTE(png_prc->png, png_prc->info, palette, PALETTE_SIZE);
+
+    return 0;
+}
+
+
+int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
+    if (png_prc->chunks[PNG_CHUNK_IHDR].required == IS_REQUIRED && 
+        png_prc->chunks[PNG_CHUNK_IHDR].valid != IS_VALID) { 
+        if (png_config_IHDR(png_prc, pic_size) < 0)
+            return -1;
+    }
+    
+    if (png_prc->chunks[PNG_CHUNK_bKGD].required == IS_REQUIRED &&
+        png_prc->chunks[PNG_CHUNK_bKGD].valid != IS_VALID) { 
+        if (png_config_bKGD(png_prc) < 0)
+            return -1;
+    }
+    
+    if (png_prc->chunks[PNG_CHUNK_sPLT].required == IS_REQUIRED &&
+        png_prc->chunks[PNG_CHUNK_sPLT].valid != IS_VALID) { 
+        if (png_config_sPLT(png_prc) < 0)
+            return -1;
+    }
+
+    return 0;
 }

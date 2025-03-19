@@ -31,12 +31,19 @@ enum {
 };
 
 enum {
+    NOT_REQUIRED,
+    IS_REQUIRED,
+};
+
+enum {
     NOT_VALID,
     IS_VALID,
 };
 
 typedef struct {
-    int is_valid;
+    int required;
+    int valid;
+    void *info;
 } PNGChunk_t;
 
 typedef struct png_processing_t {

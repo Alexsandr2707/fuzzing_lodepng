@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 enum {
-    DEF_MAX_SIZE = 1000000,
-    HARD_MAX_SIZE = 100000000,
+    AFL_VECTOR_DEF_MAX_SIZE = 1000000,
+    AFL_VECTOR_HARD_MAX_SIZE = 100000000,
 };
 
 enum {
