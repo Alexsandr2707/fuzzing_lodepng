@@ -43,5 +43,6 @@ int png_write(png_processing_t *png_prc, png_bytep pic) {
     png_write_image(png_prc->png, row_pointers);
     png_write_end(png_prc->png, NULL);
 
+    free(row_pointers);
     return 0;
 }

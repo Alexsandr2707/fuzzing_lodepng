@@ -267,6 +267,24 @@ int get_random_hw(size_t pixel_count, size_t *height, size_t *width) {
     return 0;
 }
 
+int get_color_range(png_processing_t *png_prc, size_t *min_color, size_t *max_color) {
+    if (png_prc == NULL || min_color == NULL || max_color == NULL) {
+        return -1;
+    }
+
+    int bit_depth = png_get_bit_depth(png_prc->png, png_prc->info);
+    if (bit_depth == 8) {
+        *min_color = BIT8_MIN_COLOR;
+        *max_color = BIT8_MAX_COLOR;
+    } else if (bit_depth == 16) {
+        *min_color = BIT16_MIN_COLOR;
+        *max_color = BIT16_MAX_COLOR;
+    } else {
+        return -1;
+    }
+
+    return 0;
+}
 
 // also set compression level
 int png_config_IHDR(png_processing_t *png_prc, size_t pic_size) {
@@ -342,19 +360,23 @@ int png_config_bKGD(png_processing_t *png_prc) {
         return -1;
 
     png_color_16 background;
+    size_t min_color, max_color;
+    
+    get_color_range(png_prc, &min_color, &max_color);
+
     Vector *out = &(png_prc->chunks[PNG_CHUNK_bKGD].info);
     clean_vector(out);
 
     int color_type = png_get_color_type(png_prc->png, png_prc->info);
 
     if (color_type == PNG_COLOR_TYPE_PALETTE)
-        background.index = rand_in_range(MIN_COLOR, MAX_COLOR);
+        background.index = rand_in_range(BIT8_MIN_COLOR, BIT8_MAX_COLOR);
     else if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA){
-        background.gray = rand_in_range(MIN_COLOR, MAX_COLOR);
+        background.gray = rand_in_range(min_color, max_color);
     } else if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_RGBA) {
-        background.red = rand_in_range(MIN_COLOR, MAX_COLOR);
-        background.green = rand_in_range(MIN_COLOR, MAX_COLOR);
-        background.blue = rand_in_range(MIN_COLOR, MAX_COLOR);
+        background.red = rand_in_range(min_color, max_color);
+        background.green = rand_in_range(min_color, max_color);
+        background.blue = rand_in_range(min_color, max_color);
     } else {
         return -1;
     }
@@ -373,37 +395,45 @@ int png_config_tRNS(png_processing_t *png_prc) {
             return -1;
     }
 
+    size_t min_color, max_color;
+    get_color_range(png_prc, &min_color, &max_color);
+
     int color_type = png_get_color_type(png_prc->png, png_prc->info);
     Vector *out = &(png_prc->chunks[PNG_CHUNK_tRNS].info);
     clean_vector(out);
 
     switch (color_type) {
         case PNG_COLOR_TYPE_GRAY: {
-            png_byte trans_color = rand_in_range(0, MAX_COLOR); 
+            png_color_16 trans_color = { .gray = rand_in_range(min_color, max_color) };
             write_to_vector(out, &trans_color, sizeof(trans_color));
+    
+            png_set_tRNS(png_prc->png, png_prc->info, NULL, 0, out->data);
             break;
         }
         case PNG_COLOR_TYPE_RGB: {
-            png_byte trans_color[3];
-            for(int i = 0; i < 3; ++i) 
-                trans_color[i] = rand_in_range(0, MAX_COLOR);
+            png_color_16 trans_color;
+            trans_color.red = rand_in_range(min_color, max_color);
+            trans_color.green = rand_in_range(min_color, max_color);
+            trans_color.blue = rand_in_range(min_color, max_color);
 
-            write_to_vector(out, trans_color, sizeof(*trans_color) * 3);
+            write_to_vector(out, &trans_color, sizeof(trans_color));
+            png_set_tRNS(png_prc->png, png_prc->info, NULL, 0, out->data);
             break;
         }
         case PNG_COLOR_TYPE_PALETTE: {
             png_byte trans_color;
             for (int i = 0; i < 256; i++) {
-                trans_color = rand_in_range(0, MAX_COLOR);
+                trans_color = rand_in_range(BIT8_MIN_COLOR, BIT8_MAX_COLOR);
                 write_to_vector(out, &trans_color, sizeof(trans_color));
             }
+
+            png_set_tRNS(png_prc->png, png_prc->info, out->data, out->len, NULL);
             break;
         }
         default: 
             return -1;
     }
 
-    png_set_tRNS(png_prc->png, png_prc->info, out->data, out->len, NULL);
     png_prc->chunks[PNG_CHUNK_tRNS].valid = IS_VALID;
     
     return 0;
@@ -414,19 +444,26 @@ int png_config_sPLT(png_processing_t *png_prc) {
     if (png_prc->chunks[PNG_CHUNK_sPLT].required != IS_REQUIRED) 
         return -1;
 
+    int color_type = png_get_color_type(png_prc->png, png_prc->info);
+    if (color_type != PNG_COLOR_TYPE_GRAY)
+        return -1;
+
+    size_t min_color = BIT8_MIN_COLOR;
+    size_t max_color = BIT8_MAX_COLOR;
+
     Vector *palette_out = &(png_prc->chunks[PNG_CHUNK_sPLT].info);
     clean_vector(palette_out);
 
     png_color palette;
 
     for (int i = 0; i < PALETTE_SIZE; ++i) {
-        palette.red = rand_in_range(MIN_COLOR, MAX_COLOR);
-        palette.green = rand_in_range(MIN_COLOR ,MAX_COLOR);
-        palette.blue = rand_in_range(MIN_COLOR, MAX_COLOR);
+        palette.red = rand_in_range(min_color, max_color);
+        palette.green = rand_in_range(min_color ,max_color);
+        palette.blue = rand_in_range(min_color, max_color);
         write_to_vector(palette_out, &palette, sizeof(palette));
     }
 
-    png_set_PLTE(png_prc->png, png_prc->info, palette_out->data, PALETTE_SIZE);
+    png_set_PLTE(png_prc->png, png_prc->info, palette_out->data, palette_out->len);
     png_prc->chunks[PNG_CHUNK_sPLT].valid = IS_VALID;
     
     return 0;

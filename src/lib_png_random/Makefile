@@ -7,12 +7,12 @@ INCLUDE = $(ROOT)/include
 
 # compiler 
 CC = clang
-CFLAGS = -c  -fPIC -O2 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
+CFLAGS = -c -fsanitize=address,leak  -fPIC -O2 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
 
 
 
 #linker
-LD_FLAGS = -lpng -lm
+LD_FLAGS = -lpng -lm -fsanitize=address,leak
 
 
 
