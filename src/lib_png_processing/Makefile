@@ -28,7 +28,7 @@ $(TARGET): $(CFILES)
 clean:
 		rm -f *.o $(TARGET)
 
-install: $(TARGET)
+install: 
 		cp png_processing.h $(INCLUDE)
 		cp $(TARGET) $(LIB)
 		make clean

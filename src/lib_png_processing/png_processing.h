@@ -2,6 +2,7 @@
 #define _H_PNG_PROCESSING
 
 #include <png.h>
+#include "vector.h"
 #include "afl_vector.h"
 
 // chunks
@@ -43,7 +44,7 @@ enum {
 typedef struct {
     int required;
     int valid;
-    void *info;
+    Vector info; 
 } PNGChunk_t;
 
 typedef struct png_processing_t {

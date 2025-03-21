@@ -84,7 +84,7 @@ void deinit_afl_vector(AFLVector *vector, int flag) {
         afl_free(vector->data);
     }
 
-    if (flag == DYNAMIC) {
+    if (flag == AFL_VECTOR_DYNAMIC) {
         free(vector);
     }
 }

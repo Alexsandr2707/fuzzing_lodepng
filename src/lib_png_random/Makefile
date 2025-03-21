@@ -7,12 +7,12 @@ INCLUDE = $(ROOT)/include
 
 # compiler 
 CC = clang
-CFLAGS = -c -fPIC -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
+CFLAGS = -c  -fPIC -O2 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
 
 
 
 #linker
-LD_FLAGS = -lpng 
+LD_FLAGS = -lpng -lm
 
 
 
@@ -20,12 +20,15 @@ LD_FLAGS = -lpng
 TARGET = png_random.o
 CFILES = png_random.c
 
-test.o: test.c
+test.o: test.c 
 		$(CC) $(CFLAGS) $^ -o $@
 
-test: test.o $(LIB)/png_random.o $(LIB)/*.o $(LIB)/afl_vector.a
+test: test.o $(LIB)/png_random.o $(LIB)/*.o $(LIB)/afl_vector.a $(LIB)/vector.a
 		$(CC) $^ -o $@ $(LD_FLAGS)
 
+gen_png: gen_png.c
+		$(CC) $(CFLAGS) $^ 
+		$(CC) gen_png.o -o$@ $(LD_FLAGS)
 
 $(TARGET): $(CFILES)
 		$(CC) $(CFLAGS) $^ -o $@ 

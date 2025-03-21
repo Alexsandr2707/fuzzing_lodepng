@@ -9,8 +9,8 @@ enum {
 };
 
 enum {
-    DYNAMIC,
-    STATIC,
+    VECTOR_DYNAMIC,
+    VECTOR_STATIC,
 };
 
 typedef struct Vector {
@@ -25,6 +25,7 @@ Vector *malloc_vector(void);
 int init_vector(Vector *vector, void *data, size_t len, size_t size, size_t max_size);
 void deinit_vector(Vector *vector, int flag);
 void print_vector_info(Vector *vector);
+void clean_vector(Vector *vector);
 int write_to_vector(Vector *vector, void *buf, size_t buf_size);
 
 

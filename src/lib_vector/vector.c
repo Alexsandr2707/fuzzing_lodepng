@@ -62,7 +62,7 @@ void deinit_vector(Vector *vector, int flag) {
         free(vector->data);
     }
 
-    if (flag == DYNAMIC) {
+    if (flag == VECTOR_DYNAMIC) {
         free(vector);
     }
 }
@@ -86,6 +86,13 @@ void print_vector_info(Vector *vector) {
 
     fprintf(stdout, "------------------------\n");
 }
+
+void clean_vector(Vector *vector) {
+    if (vector) {
+        vector->len = 0;
+    }
+}
+
     
 int write_to_vector(Vector *vector, void *buf, size_t buf_size) {
     if (!is_valid_vector(vector) || buf == NULL) {

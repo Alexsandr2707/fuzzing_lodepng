@@ -137,12 +137,40 @@ void print_interlace_method(int interlace_method) {
     printf("\n");
 }
 
+void print_PNGChunk_info(PNGChunk_t *chunk) {
+    //printf("-------------------- PNGChunk_t info --------------------\n");
+    if (chunk == NULL) { 
+        printf("Bad pointer\n");
+        return;
+    }
+
+    if (chunk->required == IS_REQUIRED) {
+        printf("required: IS_REQUIRED\n");
+    } else if (chunk->required == NOT_REQUIRED) {
+        printf("required: NOT_REQUIRED\n");
+    } else {
+        printf("required: undefind\n");
+    }
+
+    if (chunk->valid == IS_VALID) {
+        printf("valid: IS_VALID\n");
+    } else if (chunk->valid == NOT_VALID) {
+        printf("valid: NOT_VALID\n");
+    } else {
+        printf("valid: undefind\n");
+    }
+    print_vector_info(&(chunk->info));
+    printf("\n");
+    //printf("-------------------- PNGChunk_t info DONE ---------------\n");
+}
 
 void print_IHDR_info(png_processing_t *png_prc) {
-    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_IHDR].required != IS_REQUIRED)
-        return;
+    printf("-------------------- print IHDR info --------------------\n");
 
-    printf("----- print IHDR info -----\n");
+    if (png_prc == NULL)         
+        return;
+    
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_sPLT]));
 
     int height = png_get_image_height(png_prc->png, png_prc->info);
     int width = png_get_image_width(png_prc->png, png_prc->info);
@@ -163,11 +191,16 @@ void print_IHDR_info(png_processing_t *png_prc) {
     int interlace_method = png_get_interlace_type(png_prc->png, png_prc->info);
     print_interlace_method(interlace_method);
     
-    printf("----- print IHDR info DONE -----\n");
+    printf("-------------------- print IHDR info DONE ---------------\n");
 }
 
 void print_bKGD_info(png_processing_t *png_prc) {
-    printf("----- print bKGD info -----\n");
+    printf("-------------------- print bKGD info --------------------\n");
+    if (png_prc == NULL)
+        return ;
+
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_bKGD]));
+    
     png_color_16p background;
 
     png_structp png = png_prc->png;
@@ -187,18 +220,35 @@ void print_bKGD_info(png_processing_t *png_prc) {
         printf("No bKGD chunk found in the PNG file.\n");
     }
 
-    printf("----- print bKGD info DONE -----\n");
+    printf("-------------------- print bKGD info DONE ---------------\n");
+}
+
+void print_tRNS_info(png_processing_t *png_prc) {
+    printf("-------------------- print tRNS info --------------------\n");
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_tRNS]));
+    printf("-------------------- print tRNS info DONE ---------------\n");
+}
+
+void print_sPLT_info(png_processing_t *png_prc) {
+    printf("-------------------- print sPLT info --------------------\n");
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_sPLT]));
+    printf("-------------------- print sPLT info DONE ---------------\n");
 }
 
 void print_png_info(png_processing_t *png_prc) {
-    printf("---------- print PNG info -----------\n\n");
+    printf("#################### print PNG info ####################\n\n");
     print_IHDR_info(png_prc);
     printf("\n");
 
     print_bKGD_info(png_prc);
     printf("\n");
-    
-    printf("---------- print PNG info DONE -----------\n\n");
+   
+    print_tRNS_info(png_prc);
+    printf("\n");
+
+    print_sPLT_info(png_prc);
+    printf("\n");
+    printf("#################### print PNG info DONE ####################\n\n");
 }
 
 // pixel_count == height * width (not real size of picture)
@@ -220,7 +270,7 @@ int get_random_hw(size_t pixel_count, size_t *height, size_t *width) {
 
 // also set compression level
 int png_config_IHDR(png_processing_t *png_prc, size_t pic_size) {
-    if (png_prc == NULL)
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_IHDR].required != IS_REQUIRED)
         return -1;
 
     size_t height, width, pixel_count;
@@ -271,10 +321,10 @@ int png_config_IHDR(png_processing_t *png_prc, size_t pic_size) {
                  compress_method, 
                  filter_method);
 
+    png_prc->chunks[PNG_CHUNK_IHDR].valid = IS_VALID;
+    
     return 0;       
 }
-
-
 
 int png_set_random_chunks(png_processing_t *png_prc) {
     if (png_prc == NULL)
@@ -288,45 +338,97 @@ int png_set_random_chunks(png_processing_t *png_prc) {
 }
 
 int png_config_bKGD(png_processing_t *png_prc) {
+    if (png_prc->chunks[PNG_CHUNK_bKGD].required != IS_REQUIRED)
+        return -1;
+
     png_color_16 background;
+    Vector *out = &(png_prc->chunks[PNG_CHUNK_bKGD].info);
+    clean_vector(out);
+
     int color_type = png_get_color_type(png_prc->png, png_prc->info);
 
     if (color_type == PNG_COLOR_TYPE_PALETTE)
         background.index = rand_in_range(MIN_COLOR, MAX_COLOR);
     else if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA){
         background.gray = rand_in_range(MIN_COLOR, MAX_COLOR);
-    } else {
+    } else if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_RGBA) {
         background.red = rand_in_range(MIN_COLOR, MAX_COLOR);
         background.green = rand_in_range(MIN_COLOR, MAX_COLOR);
         background.blue = rand_in_range(MIN_COLOR, MAX_COLOR);
+    } else {
+        return -1;
     }
+    
+    
+    write_to_vector(out, &background, sizeof(background));
 
-    png_set_bKGD(png_prc->png, png_prc->info, &background);
+    png_set_bKGD(png_prc->png, png_prc->info, out->data);
+    png_prc->chunks[PNG_CHUNK_bKGD].valid = IS_VALID;
     return 0;
 }
+
+
+int png_config_tRNS(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_tRNS].required != IS_REQUIRED) {
+            return -1;
+    }
+
+    int color_type = png_get_color_type(png_prc->png, png_prc->info);
+    Vector *out = &(png_prc->chunks[PNG_CHUNK_tRNS].info);
+    clean_vector(out);
+
+    switch (color_type) {
+        case PNG_COLOR_TYPE_GRAY: {
+            png_byte trans_color = rand_in_range(0, MAX_COLOR); 
+            write_to_vector(out, &trans_color, sizeof(trans_color));
+            break;
+        }
+        case PNG_COLOR_TYPE_RGB: {
+            png_byte trans_color[3];
+            for(int i = 0; i < 3; ++i) 
+                trans_color[i] = rand_in_range(0, MAX_COLOR);
+
+            write_to_vector(out, trans_color, sizeof(*trans_color) * 3);
+            break;
+        }
+        case PNG_COLOR_TYPE_PALETTE: {
+            png_byte trans_color;
+            for (int i = 0; i < 256; i++) {
+                trans_color = rand_in_range(0, MAX_COLOR);
+                write_to_vector(out, &trans_color, sizeof(trans_color));
+            }
+            break;
+        }
+        default: 
+            return -1;
+    }
+
+    png_set_tRNS(png_prc->png, png_prc->info, out->data, out->len, NULL);
+    png_prc->chunks[PNG_CHUNK_tRNS].valid = IS_VALID;
+    
+    return 0;
+}
+
 
 int png_config_sPLT(png_processing_t *png_prc) {
     if (png_prc->chunks[PNG_CHUNK_sPLT].required != IS_REQUIRED) 
         return -1;
 
-    png_color *palette = png_prc->chunks[PNG_CHUNK_sPLT].info;
-    if (palette == NULL) {
-        palette = malloc(sizeof(palette) * PALETTE_SIZE);
-        if (palette == NULL)
-            return -1;
+    Vector *palette_out = &(png_prc->chunks[PNG_CHUNK_sPLT].info);
+    clean_vector(palette_out);
 
-        png_prc->chunks[PNG_CHUNK_sPLT].info = palette;
-    }
-
+    png_color palette;
 
     for (int i = 0; i < PALETTE_SIZE; ++i) {
-        palette[i].red = rand_in_range(MIN_COLOR, MAX_COLOR);
-        palette[i].green = rand_in_range(MIN_COLOR ,MAX_COLOR);
-        palette[i].blue = rand_in_range(MIN_COLOR, MAX_COLOR);
+        palette.red = rand_in_range(MIN_COLOR, MAX_COLOR);
+        palette.green = rand_in_range(MIN_COLOR ,MAX_COLOR);
+        palette.blue = rand_in_range(MIN_COLOR, MAX_COLOR);
+        write_to_vector(palette_out, &palette, sizeof(palette));
     }
 
-    png_set_PLTE(png_prc->png, png_prc->info, palette, PALETTE_SIZE);
-
+    png_set_PLTE(png_prc->png, png_prc->info, palette_out->data, PALETTE_SIZE);
+    png_prc->chunks[PNG_CHUNK_sPLT].valid = IS_VALID;
+    
     return 0;
 }
 
@@ -344,6 +446,12 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
             return -1;
     }
     
+    if (png_prc->chunks[PNG_CHUNK_tRNS].required == IS_REQUIRED &&
+        png_prc->chunks[PNG_CHUNK_tRNS].valid != IS_VALID) { 
+        if (png_config_tRNS(png_prc) < 0)
+            return -1;
+    }
+
     if (png_prc->chunks[PNG_CHUNK_sPLT].required == IS_REQUIRED &&
         png_prc->chunks[PNG_CHUNK_sPLT].valid != IS_VALID) { 
         if (png_config_sPLT(png_prc) < 0)

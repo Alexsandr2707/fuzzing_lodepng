@@ -42,6 +42,7 @@ int png_set_random_chunks(png_processing_t *png_prc);
 void print_IHDR_info(png_processing_t *png_prc);
 
 int png_config_bKGD(png_processing_t *png_prc);
+int png_config_tRNS(png_processing_t *png_prc);
 int png_config_sPLT(png_processing_t *png_prc);
 
 int png_config_chunks(png_processing_t *png_prc, size_t pic_size);

@@ -1,5 +1,5 @@
-#ifndef _H_VECTOR
-#define _H_VECTOR
+#ifndef _H_AFL_VECTOR
+#define _H_AFL_VECTOR
 
 #include <stdint.h>
 
@@ -9,8 +9,8 @@ enum {
 };
 
 enum {
-    DYNAMIC,
-    STATIC,
+    AFL_VECTOR_DYNAMIC,
+    AFL_VECTOR_STATIC,
 };
 
 typedef struct AFLVector {
