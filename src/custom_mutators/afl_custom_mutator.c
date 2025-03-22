@@ -29,10 +29,14 @@ size_t afl_custom_fuzz(png_processing_t *png_prc, uint8_t *buf, size_t buf_size,
                        size_t add_buf_size,  // add_buf can be NULL
                        size_t max_size) {
 //    fprintf(stderr, "-----------------afl_custom_fuzz-----------------------\n");
+    if (reset_png_processing(png_prc) < 0)
+        return 0;
+
     if (make_random_png(png_prc, buf, buf_size) < 0) {
        return 0;
     }
 
+//    print_png_info(png_prc);
     *out_buf = png_prc->png_out.data;
 
   //  fprintf(stderr, "-----------------afl_custom_fuzz DONE-----------------------\n");

@@ -68,13 +68,13 @@ run_main: $(WORKER)
 		$(FUZZER) $(MAIN_FUZZER_FLAGS) -M $@ -- $(WORKER)  @@
 
 
-run_workers:
+run_workers: $(WORKER)
 		$(RESUME) \
 		$(CUSTOM_MUTATORS) \
 		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(WORKER) @@ 
 
-run_coverage:
-#		cd $(UTILS)/coverage && make live_coverage
+run_coverage: $(COVERAGE)
+		cd $(UTILS)/coverage && make live_coverage
 
 
 all:  $(WORKER) $(CMPLOGER) $(COVERAGE)
