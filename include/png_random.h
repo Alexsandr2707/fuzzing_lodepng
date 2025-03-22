@@ -20,7 +20,14 @@ enum {
     BIT16_MAX_COLOR = 65535,
 
     PALETTE_SIZE = 256,
+
+    ICC_HEADER_SIZE = 128,
+    MIN_ICC_DATA_SIZE = 0,
+    MAX_ICC_DATA_SIZE = 128,
+
 };
+
+#define ICC_PROFILE_NAME "RandomICCProfile"
 
 #define MIN_GAMA 0.1
 #define MAX_GAMA 10.0
@@ -51,6 +58,7 @@ void print_IHDR_info(png_processing_t *png_prc);
 void print_bKGD_info(png_processing_t *png_prc);
 void print_tRNS_info(png_processing_t *png_prc);
 void print_sPLT_info(png_processing_t *png_prc);
+void print_gAMA_info(png_processing_t *png_prc);
 
 void print_png_info(png_processing_t *png_prc);
 
@@ -60,6 +68,8 @@ int png_config_IHDR(png_processing_t *png_prc, size_t pic_size);
 int png_config_bKGD(png_processing_t *png_prc);
 int png_config_tRNS(png_processing_t *png_prc);
 int png_config_sPLT(png_processing_t *png_prc);
+int png_config_cHRM(png_processing_t *png_prc);
+int png_config_iCCP(png_processing_t *png_prc);
 
 int png_config_chunks(png_processing_t *png_prc, size_t pic_size);
 

@@ -75,14 +75,14 @@ void print_vector_info(Vector *vector) {
     }
 
     if (vector->data == NULL)
-        fprintf(stdout, "data: NULL\n"); 
+        fprintf(stdout, "  data: NULL\n"); 
     else {
-        fprintf(stdout, "data: ... - not NULL\n");
+        fprintf(stdout, "  data: ... - not NULL\n");
     }
 
-    fprintf(stdout, "len: %lu\n", vector->len);
-    fprintf(stdout, "size: %lu\n", vector->size);
-    fprintf(stdout, "max_size: %lu\n", vector->max_size);
+    fprintf(stdout, "  len: %lu\n", vector->len);
+    fprintf(stdout, "  size: %lu\n", vector->size);
+    fprintf(stdout, "  max_size: %lu\n", vector->max_size);
 
     fprintf(stdout, "------------------------\n");
 }

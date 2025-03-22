@@ -310,5 +310,4 @@ int main(int argc, char *argv[]) /*list the chunks*/ {
   displayFilterTypes(buffer, ignore_checksums);
   std::cout << std::endl;
   displayAsciiArt(image, w, h);
-  std::cout << "here" << std::endl;
 }

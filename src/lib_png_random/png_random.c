@@ -1,5 +1,8 @@
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
+#include <string.h>
+#include <arpa/inet.h>
 #include "png_random.h"
 #include "png_processing.h"
 
@@ -30,6 +33,69 @@ enum {
     INTERLACE_METHOD_SIZE = 2,
 };
 
+size_t min(size_t a, size_t b) {
+    if (a <= b) 
+        return a;
+    else 
+        return b;
+}
+
+size_t max(size_t a, size_t b) {
+    if (a >= b) 
+        return a;
+    else 
+        return b;
+}
+
+double min_double(double a, double b) {
+    if (a <= b)
+        return a;
+    else 
+        return b;
+}
+
+double max_double(double a, double b) {
+    if (a >= b)
+        return a;
+    else 
+        return b;
+}
+
+
+size_t rand_in_range(size_t min, size_t max) {
+    return min + (rand() % (max - min + 1));
+}
+
+double rand_in_range_double(double min, double max) {
+    double random = (double)rand() / (double)RAND_MAX;
+
+    return min + random * (max - min);
+}
+
+void generate_profile_name(char* name, size_t length) {
+    const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (size_t i = 0; i < length - 1; i++) {
+        name[i] = charset[rand() % (sizeof(charset) - 1)];
+    }
+    name[length - 1] = '\0';
+}
+
+
+// pixel_count == height * width (not real size of picture)
+int get_random_hw(size_t pixel_count, size_t *height, size_t *width) {
+    if (pixel_count < MIN_WIDTH * MIN_HEIGHT || height == NULL || width == NULL)
+        return -1;
+
+    if (MIN_HEIGHT <= MIN_WIDTH) {
+        *height = rand_in_range(MIN_HEIGHT, min(sqrt(pixel_count), MAX_HEIGHT));
+        *width = min(pixel_count / *height, MAX_WIDTH);
+    } else {
+        *width = rand_in_range(MIN_WIDTH, min(sqrt(pixel_count), MAX_WIDTH));
+        *height = min(pixel_count / *width, MAX_HEIGHT);
+    }
+
+    return 0;
+}
 
 int channels_count(int color_type) {
     int channels = 0;
@@ -65,52 +131,32 @@ int calculate_bytes_per_pixel(int color_type, int bit_depth) {
     return (bit_depth * channels + 7) / 8; 
 }
 
+int get_color_range(png_processing_t *png_prc, size_t *min_color, size_t *max_color) {
+    if (png_prc == NULL || min_color == NULL || max_color == NULL) {
+        return -1;
+    }
 
-size_t rand_in_range(size_t min, size_t max) {
-    return min + (rand() % (max - min + 1));
-}
+    int bit_depth = png_get_bit_depth(png_prc->png, png_prc->info);
+    if (bit_depth == 8) {
+        *min_color = BIT8_MIN_COLOR;
+        *max_color = BIT8_MAX_COLOR;
+    } else if (bit_depth == 16) {
+        *min_color = BIT16_MIN_COLOR;
+        *max_color = BIT16_MAX_COLOR;
+    } else {
+        return -1;
+    }
 
-double rand_in_range_double(double min, double max) {
-    double random = (double)rand() / (double)RAND_MAX;
-
-    return min + random * (max - min);
-}
-
-size_t min(size_t a, size_t b) {
-    if (a <= b) 
-        return a;
-    else 
-        return b;
-}
-
-size_t max(size_t a, size_t b) {
-    if (a >= b) 
-        return a;
-    else 
-        return b;
-}
-
-double min_double(double a, double b) {
-    if (a <= b)
-        return a;
-    else 
-        return b;
-}
-
-double max_double(double a, double b) {
-    if (a >= b)
-        return a;
-    else 
-        return b;
+    return 0;
 }
 
 void print_hw(int height, int width) {
-    printf("height: %d\n", height);
-    printf("width: %d\n", width);
+    printf("  height: %d\n", height);
+    printf("  width: %d\n", width);
 }
 
 void print_color_type(int color_type) {
-    printf("color_type: ");
+    printf("  color_type: ");
     switch (color_type) {
         case PNG_COLOR_TYPE_GRAY: printf("PNG_COLOR_TYPE_GRAY"); break;
         case PNG_COLOR_TYPE_RGB: printf("PNG_COLOR_TYPE_RGB"); break;
@@ -124,11 +170,11 @@ void print_color_type(int color_type) {
 }
 
 void print_bit_depth(int bit_depth) {
-    printf("bit_depth: %d\n", bit_depth);
+    printf("  bit_depth: %d\n", bit_depth);
 }
 
 void print_compress_method(int compress_method) {
-    printf("compress_method: ");
+    printf("  compress_method: ");
     switch (compress_method) {
         case PNG_COMPRESSION_TYPE_DEFAULT: printf("PNG_COMPRESSION_TYPE_DEFAULT"); break;
         default: printf("undifined compression type");
@@ -138,7 +184,7 @@ void print_compress_method(int compress_method) {
 }
 
 void print_filter_method(int filter_method) {
-    printf("filter_method; ");
+    printf("  filter_method; ");
     switch (filter_method) {
         case PNG_FILTER_TYPE_DEFAULT: printf("PNG_FILTER_TYPE_DEFAULT"); break;
         default: printf("undefinded filter method");
@@ -147,7 +193,7 @@ void print_filter_method(int filter_method) {
 }
 
 void print_interlace_method(int interlace_method) {
-    printf("interlace_method: ");
+    printf("  interlace_method: ");
     switch (interlace_method) {
         case PNG_INTERLACE_NONE: printf("PNG_INTERLACE_NONE"); break;
         case PNG_INTERLACE_ADAM7: printf("PNG_INTERLACE_ADAM7"); break;
@@ -165,19 +211,19 @@ void print_PNGChunk_info(PNGChunk_t *chunk) {
     }
 
     if (chunk->required == IS_REQUIRED) {
-        printf("required: IS_REQUIRED\n");
+        printf("  required: IS_REQUIRED\n");
     } else if (chunk->required == NOT_REQUIRED) {
-        printf("required: NOT_REQUIRED\n");
+        printf("  required: NOT_REQUIRED\n");
     } else {
-        printf("required: undefind\n");
+        printf("  required: undefind\n");
     }
 
     if (chunk->valid == IS_VALID) {
-        printf("valid: IS_VALID\n");
+        printf("  valid: IS_VALID\n");
     } else if (chunk->valid == NOT_VALID) {
-        printf("valid: NOT_VALID\n");
+        printf("  valid: NOT_VALID\n");
     } else {
-        printf("valid: undefind\n");
+        printf("  valid: undefind\n");
     }
     print_vector_info(&(chunk->info));
     printf("\n");
@@ -230,14 +276,14 @@ void print_bKGD_info(png_processing_t *png_prc) {
         png_byte color_type = png_get_color_type(png, info);
 
         if (color_type == PNG_COLOR_TYPE_PALETTE) {
-            printf("Background color index: %d\n", background->index);
+            printf("  Background color index: %d\n", background->index);
         } else if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
-            printf("Background gray value: %d\n", background->gray);
+            printf("  Background gray value: %d\n", background->gray);
         } else if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
-            printf("Background RGB color: (%d, %d, %d)\n", background->red, background->green, background->blue);
+            printf("  Background RGB color: (%d, %d, %d)\n", background->red, background->green, background->blue);
         }
     } else {
-        printf("No bKGD chunk found in the PNG file.\n");
+        printf("No bKGD chunk found in the PNG file\n");
     }
 
     printf("-------------------- print bKGD info DONE ---------------\n");
@@ -245,23 +291,29 @@ void print_bKGD_info(png_processing_t *png_prc) {
 
 void print_tRNS_info(png_processing_t *png_prc) {
     printf("-------------------- print tRNS info --------------------\n");
+    if (png_prc == NULL)
+        return ;
     print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_tRNS]));
     printf("-------------------- print tRNS info DONE ---------------\n");
 }
 
 void print_sPLT_info(png_processing_t *png_prc) {
     printf("-------------------- print sPLT info --------------------\n");
+    if (png_prc == NULL)
+        return ;
     print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_sPLT]));
     printf("-------------------- print sPLT info DONE ---------------\n");
 }
 
 void print_gAMA_info(png_processing_t *png_prc) {
     printf("-------------------- print gAMA info --------------------\n");
+    if (png_prc == NULL)
+        return ;
     print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_gAMA]));
 
     double gamma;
     if (png_get_gAMA(png_prc->png, png_prc->info, &gamma)) 
-        printf("gamma: %lf\n", gamma);
+        printf("  gamma: %lf\n", gamma);
     else 
         printf("gamma: is undefined\n");
 
@@ -270,6 +322,8 @@ void print_gAMA_info(png_processing_t *png_prc) {
 
 void print_cHRM_info(png_processing_t *png_prc) {
     printf("-------------------- print cHRM info --------------------\n");
+    if (png_prc == NULL)
+        return ;
     print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_cHRM]));
 
     double wx, wy, red_x, red_y, green_x, green_y, blue_x, blue_y;
@@ -286,9 +340,47 @@ void print_cHRM_info(png_processing_t *png_prc) {
     printf("-------------------- print cHRM info DONE ---------------\n");
 }
 
+void print_iCCP_info(png_processing_t *png_prc) {
+    printf("-------------------- print iCCP info --------------------\n");
+    if (png_prc == NULL)
+        return ;
+
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_iCCP]));
+
+    const size_t out_profile_bytes = 20;
+
+    png_charp profile_name;
+    png_bytep profile_data;
+    png_uint_32 profile_length;
+    int compression_type;
+
+    if (png_get_iCCP(png_prc->png, png_prc->info, &profile_name, &compression_type, &profile_data, &profile_length)) {
+        printf("iCCP chunk found:\n");
+        printf("  Profile name: %s\n", profile_name);
+        printf("  Compression type: %d\n", compression_type);
+        printf("  Profile length: %u bytes\n", profile_length);
+
+        printf("  First 16 bytes of profile data: ");
+        for (png_uint_32 i = 0; i < profile_length && i < out_profile_bytes; ++i) {
+            printf("%02X ", profile_data[i]);
+        }
+
+        if (profile_length > out_profile_bytes) 
+            printf("...");
+
+        printf("\n");
+    } else {
+        printf("iCCP chunk not found in the file\n");
+    }
+
+    printf("-------------------- print iCCP info DONE ---------------\n");
+}
 
 void print_png_info(png_processing_t *png_prc) {
     printf("#################### print PNG info ####################\n\n");
+    if (png_prc == NULL)
+        return ;
+
     print_IHDR_info(png_prc);
     printf("\n");
 
@@ -306,42 +398,10 @@ void print_png_info(png_processing_t *png_prc) {
 
     print_cHRM_info(png_prc);
     printf("\n");
+
+    print_iCCP_info(png_prc);
+    printf("\n");
     printf("#################### print PNG info DONE ####################\n\n");
-}
-
-// pixel_count == height * width (not real size of picture)
-int get_random_hw(size_t pixel_count, size_t *height, size_t *width) {
-    if (pixel_count < MIN_WIDTH * MIN_HEIGHT || height == NULL || width == NULL)
-        return -1;
-
-    if (MIN_HEIGHT <= MIN_WIDTH) {
-        *height = rand_in_range(MIN_HEIGHT, min(sqrt(pixel_count), MAX_HEIGHT));
-        *width = min(pixel_count / *height, MAX_WIDTH);
-    } else {
-        *width = rand_in_range(MIN_WIDTH, min(sqrt(pixel_count), MAX_WIDTH));
-        *height = min(pixel_count / *width, MAX_HEIGHT);
-    }
-
-    return 0;
-}
-
-int get_color_range(png_processing_t *png_prc, size_t *min_color, size_t *max_color) {
-    if (png_prc == NULL || min_color == NULL || max_color == NULL) {
-        return -1;
-    }
-
-    int bit_depth = png_get_bit_depth(png_prc->png, png_prc->info);
-    if (bit_depth == 8) {
-        *min_color = BIT8_MIN_COLOR;
-        *max_color = BIT8_MAX_COLOR;
-    } else if (bit_depth == 16) {
-        *min_color = BIT16_MIN_COLOR;
-        *max_color = BIT16_MAX_COLOR;
-    } else {
-        return -1;
-    }
-
-    return 0;
 }
 
 // also set compression level
@@ -508,7 +568,7 @@ int png_config_sPLT(png_processing_t *png_prc) {
         return -1;
 
     int color_type = png_get_color_type(png_prc->png, png_prc->info);
-    if (color_type == PNG_COLOR_TYPE_GRAY)
+    if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
         return 0;
 
     size_t min_color = BIT8_MIN_COLOR;
@@ -533,11 +593,12 @@ int png_config_sPLT(png_processing_t *png_prc) {
 }
 
 int png_config_gAMA(png_processing_t *png_prc) {
-    if (png_prc == NULL) 
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_gAMA].required != IS_REQUIRED) 
         return -1;
 
     double gamma = rand_in_range_double(MIN_GAMA, MAX_GAMA);
     png_set_gAMA(png_prc->png, png_prc->info, gamma);
+    png_prc->chunks[PNG_CHUNK_gAMA].valid = IS_VALID;
 
     return 0;
 }
@@ -565,6 +626,69 @@ int png_config_cHRM(png_processing_t *png_prc) {
     png_prc->chunks[PNG_CHUNK_cHRM].valid = IS_VALID;
     return 0;
 }   
+
+
+int generate_icc_profile(png_processing_t *png_prc) {
+    unsigned char header[ICC_HEADER_SIZE] = {0};
+    size_t data_size = rand_in_range(MIN_ICC_DATA_SIZE, MAX_ICC_DATA_SIZE); 
+    data_size = data_size - (data_size % 4); //must be data_size % 4 == 0
+    size_t profile_size = ICC_HEADER_SIZE + data_size;
+
+    Vector *profile = &(png_prc->chunks[PNG_CHUNK_iCCP].info);
+    clean_vector(profile);
+
+    time_t now = time(NULL);
+    struct tm* tm = gmtime(&now);
+
+    //Some valid data
+    *(uint32_t*)header = htonl(profile_size);
+    memcpy(header + 4, "lcms", 4);
+    *(uint32_t*)(header + 8) = htonl(0x04200000);
+    memcpy(header + 12, "mntr", 4);
+    memcpy(header + 16, "RGB ", 4);
+    memcpy(header + 20, "XYZ ", 4);
+
+    *(uint16_t*)(header + 24) = htons(1900 + tm->tm_year); 
+    header[26] = tm->tm_mon + 1;    
+    header[27] = tm->tm_mday;      
+    header[28] = tm->tm_hour;       
+    header[29] = tm->tm_min;       
+    header[30] = tm->tm_sec;      
+    
+    memcpy(header + 36, "acsp", 4);
+    memcpy(header + 40, "APPL", 4);
+    *(uint32_t*)(header + 64) = htonl(0);
+
+    write_to_vector(profile, header, ICC_HEADER_SIZE);
+
+    for (size_t i = ICC_HEADER_SIZE; i < profile_size; i++) {
+        uint8_t val = rand_in_range(0, 255); //random byte
+        write_to_vector(profile, &val, sizeof(val));
+    }
+
+    return 0;
+}
+
+int png_config_iCCP(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_iCCP].required != IS_REQUIRED) 
+        return -1;
+
+    unsigned char* profile;
+    size_t profile_size;
+
+    if (generate_icc_profile(png_prc) < 0) {
+        return -1;
+    }
+
+    profile = png_prc->chunks[PNG_CHUNK_iCCP].info.data;
+    profile_size = png_prc->chunks[PNG_CHUNK_iCCP].info.len;
+
+    png_set_iCCP(png_prc->png, png_prc->info, ICC_PROFILE_NAME, PNG_COMPRESSION_TYPE_BASE, profile, profile_size);
+    png_prc->chunks[PNG_CHUNK_iCCP].valid = IS_VALID;
+
+    return 0;
+}
+
 
 int is_config_chunk(PNGChunk_t *chunk) {
     if (chunk != NULL && chunk->required == IS_REQUIRED && 
@@ -606,7 +730,7 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
     
     if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_gAMA]))) {
         if (png_config_gAMA(png_prc) < 0) {
-            printf("bad config sPLT\n");
+            printf("bad config gAMA\n");
             return -1;
         }
     }
@@ -618,6 +742,12 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
         }
     }
     
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_iCCP]))) {
+        if (png_config_iCCP(png_prc) < 0) {
+            printf("bad config iCCP\n");
+            return -1;
+        }
+    }
 
     return 0;
 }
