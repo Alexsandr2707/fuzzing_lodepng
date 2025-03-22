@@ -70,6 +70,12 @@ size_t rand_in_range(size_t min, size_t max) {
     return min + (rand() % (max - min + 1));
 }
 
+double rand_in_range_double(double min, double max) {
+    double random = (double)rand() / (double)RAND_MAX;
+
+    return min + random * (max - min);
+}
+
 size_t min(size_t a, size_t b) {
     if (a <= b) 
         return a;
@@ -170,7 +176,7 @@ void print_IHDR_info(png_processing_t *png_prc) {
     if (png_prc == NULL)         
         return;
     
-    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_sPLT]));
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_IHDR]));
 
     int height = png_get_image_height(png_prc->png, png_prc->info);
     int width = png_get_image_width(png_prc->png, png_prc->info);
@@ -235,6 +241,19 @@ void print_sPLT_info(png_processing_t *png_prc) {
     printf("-------------------- print sPLT info DONE ---------------\n");
 }
 
+void print_gAMA_info(png_processing_t *png_prc) {
+    printf("-------------------- print gAMA info --------------------\n");
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_gAMA]));
+
+    double gamma;
+    if (png_get_gAMA(png_prc->png, png_prc->info, &gamma)) 
+        printf("gamma: %lf\n", gamma);
+    else 
+        printf("gamma: is undefined\n");
+
+    printf("-------------------- print gAMA info DONE ---------------\n");
+}
+
 void print_png_info(png_processing_t *png_prc) {
     printf("#################### print PNG info ####################\n\n");
     print_IHDR_info(png_prc);
@@ -247,6 +266,9 @@ void print_png_info(png_processing_t *png_prc) {
     printf("\n");
 
     print_sPLT_info(png_prc);
+    printf("\n");
+
+    print_gAMA_info(png_prc);
     printf("\n");
     printf("#################### print PNG info DONE ####################\n\n");
 }
@@ -288,9 +310,9 @@ int get_color_range(png_processing_t *png_prc, size_t *min_color, size_t *max_co
 
 // also set compression level
 int png_config_IHDR(png_processing_t *png_prc, size_t pic_size) {
-    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_IHDR].required != IS_REQUIRED)
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_IHDR].required != IS_REQUIRED) {
         return -1;
-
+    }
     size_t height, width, pixel_count;
     int bit_depth, color_type, pixel_bytes, compression_level;
     int compress_method, filter_method, interlace_method; 
@@ -316,13 +338,15 @@ int png_config_IHDR(png_processing_t *png_prc, size_t pic_size) {
         pixel_count = (pic_size * (8 / bit_depth)) / channels_count(color_type);
     } else {
         pixel_bytes = calculate_bytes_per_pixel(color_type, bit_depth);
-        if (pixel_bytes < 0)
+        if (pixel_bytes < 0) {
             return -1;
+        }
         pixel_count = pic_size / pixel_bytes;
     }
     
-    if (get_random_hw(pixel_count, &height, &width) < 0)
+    if (get_random_hw(pixel_count, &height, &width) < 0) {
         return -1;
+    }
 
     compress_method = COMPRESS_METHOD[rand() % COMPRESS_METHOD_SIZE];
     filter_method = FILTER_METHOD[rand() % COMPRESS_METHOD_SIZE];
@@ -430,6 +454,9 @@ int png_config_tRNS(png_processing_t *png_prc) {
             png_set_tRNS(png_prc->png, png_prc->info, out->data, out->len, NULL);
             break;
         }
+        case PNG_COLOR_TYPE_RGBA:
+        case PNG_COLOR_TYPE_GRAY_ALPHA:
+            return 0;
         default: 
             return -1;
     }
@@ -441,12 +468,12 @@ int png_config_tRNS(png_processing_t *png_prc) {
 
 
 int png_config_sPLT(png_processing_t *png_prc) {
-    if (png_prc->chunks[PNG_CHUNK_sPLT].required != IS_REQUIRED) 
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_sPLT].required != IS_REQUIRED) 
         return -1;
 
     int color_type = png_get_color_type(png_prc->png, png_prc->info);
-    if (color_type != PNG_COLOR_TYPE_GRAY)
-        return -1;
+    if (color_type == PNG_COLOR_TYPE_GRAY)
+        return 0;
 
     size_t min_color = BIT8_MIN_COLOR;
     size_t max_color = BIT8_MAX_COLOR;
@@ -463,36 +490,65 @@ int png_config_sPLT(png_processing_t *png_prc) {
         write_to_vector(palette_out, &palette, sizeof(palette));
     }
 
-    png_set_PLTE(png_prc->png, png_prc->info, palette_out->data, palette_out->len);
+    png_set_PLTE(png_prc->png, png_prc->info, palette_out->data, PALETTE_SIZE);
     png_prc->chunks[PNG_CHUNK_sPLT].valid = IS_VALID;
     
     return 0;
 }
 
+int png_config_gAMA(png_processing_t *png_prc) {
+    if (png_prc == NULL) 
+        return -1;
+
+    double gamma = rand_in_range_double(MIN_GAMA, MAX_GAMA);
+    png_set_gAMA(png_prc->png, png_prc->info, gamma);
+
+    return 0;
+}
+
+int is_config_chunk(PNGChunk_t *chunk) {
+    if (chunk != NULL && chunk->required == IS_REQUIRED && 
+        chunk->valid != IS_VALID) { 
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
 int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
-    if (png_prc->chunks[PNG_CHUNK_IHDR].required == IS_REQUIRED && 
-        png_prc->chunks[PNG_CHUNK_IHDR].valid != IS_VALID) { 
-        if (png_config_IHDR(png_prc, pic_size) < 0)
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_IHDR]))) {
+        if (png_config_IHDR(png_prc, pic_size) < 0) {
+            printf("bad config IHDR\n");
             return -1;
+        }
     }
     
-    if (png_prc->chunks[PNG_CHUNK_bKGD].required == IS_REQUIRED &&
-        png_prc->chunks[PNG_CHUNK_bKGD].valid != IS_VALID) { 
-        if (png_config_bKGD(png_prc) < 0)
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_bKGD]))) {
+        if (png_config_bKGD(png_prc) < 0) {
+            printf("bad config bKGD\n");
             return -1;
+        }
     }
     
-    if (png_prc->chunks[PNG_CHUNK_tRNS].required == IS_REQUIRED &&
-        png_prc->chunks[PNG_CHUNK_tRNS].valid != IS_VALID) { 
-        if (png_config_tRNS(png_prc) < 0)
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_tRNS]))) {
+        if (png_config_tRNS(png_prc) < 0) {
+            printf("bad config tRNS\n");
             return -1;
+        }
     }
 
-    if (png_prc->chunks[PNG_CHUNK_sPLT].required == IS_REQUIRED &&
-        png_prc->chunks[PNG_CHUNK_sPLT].valid != IS_VALID) { 
-        if (png_config_sPLT(png_prc) < 0)
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_sPLT]))) {
+        if (png_config_sPLT(png_prc) < 0) {
+            printf("bad config sPLT\n");
             return -1;
+        }
+    }
+    
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_gAMA]))) {
+        if (png_config_gAMA(png_prc) < 0) {
+            printf("bad config sPLT\n");
+            return -1;
+        }
     }
 
     return 0;

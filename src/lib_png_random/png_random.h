@@ -22,6 +22,11 @@ enum {
     PALETTE_SIZE = 256,
 };
 
+#define MIN_GAMA 0.1
+#define MAX_GAMA 10.0
+
+#define EXTREAM_MIN_GAMA (1.0 / 1000000)
+#define EXTREAM_MAX_GAMA 1000000.0
 
 int channels_count(int color_type);
 int calculate_bytes_per_pixel(int color_type, int bit_depth);
@@ -34,15 +39,19 @@ void print_compress_method(int compress_method);
 void print_filter_method(int filter_method);
 void print_interlace_method(int interlace_method);
 
-void print_png_info(png_processing_t *png_prc);
-
 int get_random_hw(size_t pic_size, size_t *height, size_t *width);
-
-int png_config_IHDR(png_processing_t *png_prc, size_t pic_size);
-
 int png_set_random_chunks(png_processing_t *png_prc);
 
+
 void print_IHDR_info(png_processing_t *png_prc);
+void print_bKGD_info(png_processing_t *png_prc);
+void print_tRNS_info(png_processing_t *png_prc);
+void print_sPLT_info(png_processing_t *png_prc);
+
+void print_png_info(png_processing_t *png_prc);
+
+
+int png_config_IHDR(png_processing_t *png_prc, size_t pic_size);
 
 int png_config_bKGD(png_processing_t *png_prc);
 int png_config_tRNS(png_processing_t *png_prc);

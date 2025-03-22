@@ -40,7 +40,10 @@ void write_png_test() {
 //        return;
     png_set_random_chunks(png_prc);
 
-    png_config_chunks(png_prc, pic_size);
+    if (png_config_chunks(png_prc, pic_size) < 0) {
+        printf("bad config chunks\n");
+        return ;
+    }
     print_png_info(png_prc);
 
     png_write(png_prc, pic);
