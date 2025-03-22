@@ -28,6 +28,10 @@ enum {
 #define EXTREAM_MIN_GAMA (1.0 / 1000000)
 #define EXTREAM_MAX_GAMA 1000000.0
 
+
+#define MIN_CHRM_VAL 0.0001
+#define MAX_CHRM_VAL 0.7999
+
 int channels_count(int color_type);
 int calculate_bytes_per_pixel(int color_type, int bit_depth);
 

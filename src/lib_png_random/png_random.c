@@ -90,6 +90,20 @@ size_t max(size_t a, size_t b) {
         return b;
 }
 
+double min_double(double a, double b) {
+    if (a <= b)
+        return a;
+    else 
+        return b;
+}
+
+double max_double(double a, double b) {
+    if (a >= b)
+        return a;
+    else 
+        return b;
+}
+
 void print_hw(int height, int width) {
     printf("height: %d\n", height);
     printf("width: %d\n", width);
@@ -254,6 +268,25 @@ void print_gAMA_info(png_processing_t *png_prc) {
     printf("-------------------- print gAMA info DONE ---------------\n");
 }
 
+void print_cHRM_info(png_processing_t *png_prc) {
+    printf("-------------------- print cHRM info --------------------\n");
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_cHRM]));
+
+    double wx, wy, red_x, red_y, green_x, green_y, blue_x, blue_y;
+    if (png_get_cHRM(png_prc->png, png_prc->info, &wx, &wy, &red_x, &red_y, &green_x, &green_y, &blue_x, &blue_y)) {
+        printf("cHRM chunk finded:\n");
+        printf("  White point: wx = %.4f, wy = %.4f\n", wx, wy);
+        printf("  Red:         x = %.4f, y = %.4f\n", red_x, red_y);
+        printf("  Green:       x = %.4f, y = %.4f\n", green_x, green_y);
+        printf("  Blue:        x = %.4f, y = %.4f\n", blue_x, blue_y);
+    } else {
+        printf("cHRM chunk undefined\n");
+    }
+
+    printf("-------------------- print cHRM info DONE ---------------\n");
+}
+
+
 void print_png_info(png_processing_t *png_prc) {
     printf("#################### print PNG info ####################\n\n");
     print_IHDR_info(png_prc);
@@ -269,6 +302,9 @@ void print_png_info(png_processing_t *png_prc) {
     printf("\n");
 
     print_gAMA_info(png_prc);
+    printf("\n");
+
+    print_cHRM_info(png_prc);
     printf("\n");
     printf("#################### print PNG info DONE ####################\n\n");
 }
@@ -506,6 +542,30 @@ int png_config_gAMA(png_processing_t *png_prc) {
     return 0;
 }
 
+int png_config_cHRM(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_cHRM].required != IS_REQUIRED)
+        return -1;
+
+    double wx = rand_in_range_double(MIN_CHRM_VAL, MAX_CHRM_VAL);  // White point x
+    double wy = rand_in_range_double(MIN_CHRM_VAL, min_double(MAX_CHRM_VAL, 1 - wx));;  // White point y
+    double red_x = rand_in_range_double(MIN_CHRM_VAL, MAX_CHRM_VAL);  // Red x
+    double red_y = rand_in_range_double(MIN_CHRM_VAL, min_double(MAX_CHRM_VAL, 1 - red_x));;  // Red y
+    double green_x = rand_in_range_double(MIN_CHRM_VAL, MAX_CHRM_VAL);  // Green x
+    double green_y = rand_in_range_double(MIN_CHRM_VAL, min_double(MAX_CHRM_VAL, 1 - green_x));;  // Green y
+    double blue_x = rand_in_range_double(MIN_CHRM_VAL, MAX_CHRM_VAL);  // Blue x
+    double blue_y = rand_in_range_double(MIN_CHRM_VAL, min_double(MAX_CHRM_VAL, 1 - blue_x));  // Blue y
+
+
+    png_set_cHRM(png_prc->png, png_prc->info,
+                 wx, wy,
+                 red_x, red_y,
+                 green_x, green_y,
+                 blue_x, blue_y);
+
+    png_prc->chunks[PNG_CHUNK_cHRM].valid = IS_VALID;
+    return 0;
+}   
+
 int is_config_chunk(PNGChunk_t *chunk) {
     if (chunk != NULL && chunk->required == IS_REQUIRED && 
         chunk->valid != IS_VALID) { 
@@ -550,6 +610,14 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
             return -1;
         }
     }
+
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_cHRM]))) {
+        if (png_config_cHRM(png_prc) < 0) {
+            printf("bad config cHRM\n");
+            return -1;
+        }
+    }
+    
 
     return 0;
 }
