@@ -89,6 +89,10 @@ void deinit_afl_vector(AFLVector *vector, int flag) {
     }
 }
 
+void clean_afl_vector(AFLVector *afl_vector) {
+    afl_vector->len = 0;
+}
+
 void print_afl_vector_info(AFLVector *vector) {
     fprintf(stdout, "----- PRINT AFL VECTOR -----\n");
     if (vector == NULL) {

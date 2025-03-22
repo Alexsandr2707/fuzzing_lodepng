@@ -7,18 +7,19 @@ BIN = $(ROOT)/bin
 
 # compiler 
 CC = clang
-CFLAGS = -c -O2 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g -fsanitize=address
+SANITIZERS = #-fsanitize=memory
+CFLAGS = -c -fPIC -O2 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g $(SANITIZERS)
 
 AR = ar
 ARFLAGS = rsc
 
 #linker
-LD_FLAGS = -lpng -lm -fsanitize=address
+LD_FLAGS = -lpng -lm $(SANITIZERS)
 
 
 
 # compile
-TARGET = png_random.a
+TARGET = libpng_random.a
 CFILES = png_random.c
 PNGRAND = png_random.o
 OBJ = $(PNGRAND) $(BIN)/afl_vector.o $(BIN)/vector.o $(BIN)/png_processing.o $(BIN)/png_write.o

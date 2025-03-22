@@ -10,6 +10,9 @@ enum {
     MAX_WIDTH = 1000,
     MAX_HEIGHT = 1000,
 
+    MIN_PIC_SIZE = 8,
+    MAX_PIC_SIZE = 8 * 100,
+
     MIN_COMPRESSION_LEVEL = 0,
     MAX_COMPRESSION_LEVEL = 9,
 
@@ -33,11 +36,12 @@ enum {
 #define MAX_GAMA 10.0
 
 #define EXTREAM_MIN_GAMA (1.0 / 1000000)
-#define EXTREAM_MAX_GAMA 1000000.0
-
+#define EXTREAM_MAX_GAMA 100.0
 
 #define MIN_CHRM_VAL 0.0001
 #define MAX_CHRM_VAL 0.7999
+
+#define RAND_FILE "/dev/urandom"
 
 int channels_count(int color_type);
 int calculate_bytes_per_pixel(int color_type, int bit_depth);
@@ -50,6 +54,7 @@ void print_compress_method(int compress_method);
 void print_filter_method(int filter_method);
 void print_interlace_method(int interlace_method);
 
+void make_randomize(); // !!! important
 int get_random_hw(size_t pic_size, size_t *height, size_t *width);
 int png_set_random_chunks(png_processing_t *png_prc);
 
@@ -59,6 +64,7 @@ void print_bKGD_info(png_processing_t *png_prc);
 void print_tRNS_info(png_processing_t *png_prc);
 void print_sPLT_info(png_processing_t *png_prc);
 void print_gAMA_info(png_processing_t *png_prc);
+void print_iCCP_info(png_processing_t *png_prc);
 
 void print_png_info(png_processing_t *png_prc);
 
@@ -72,5 +78,6 @@ int png_config_cHRM(png_processing_t *png_prc);
 int png_config_iCCP(png_processing_t *png_prc);
 
 int png_config_chunks(png_processing_t *png_prc, size_t pic_size);
+int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 
 #endif

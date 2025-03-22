@@ -8,7 +8,7 @@ BIN = $(ROOT)/bin
 
 # compiler 
 CC = clang
-CFLAGS = -c -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
+CFLAGS = -c -fPIC -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
 
 #linker
 LD_FLAGS = 

@@ -4,6 +4,42 @@
 #include "afl_vector.h"
 #include "vector.h"
 
+int reset_png_processing(png_processing_t *png_prc) {
+    if (png_prc == NULL)
+        return -1;
+
+    png_destroy_write_struct(&(png_prc->png), &(png_prc->info));
+
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png) {
+        return -1;
+    }
+
+    png_infop info = png_create_info_struct(png);
+    if (!info) {
+        png_destroy_write_struct(&png, NULL);
+            return -1;
+    }
+
+    
+    png_prc->png = png;
+    png_prc->info = info;
+
+    clean_afl_vector(&(png_prc->png_out));
+
+    for (int i = 0; i < CHUNK_COUNT; ++i) {
+        png_prc->chunks[i].required = NOT_REQUIRED;
+        png_prc->chunks[i].valid = NOT_VALID;
+        clean_vector(&(png_prc->chunks[i].info));
+    }
+
+    png_prc->chunks[PNG_CHUNK_IHDR].required = IS_REQUIRED;
+    png_prc->chunks[PNG_CHUNK_IDAT].required = IS_REQUIRED;
+    png_prc->chunks[PNG_CHUNK_IEND].required = IS_REQUIRED;
+
+    return 0;
+}
+
 png_processing_t *create_png_processing(void) {
     png_processing_t *png_prc = calloc(1, sizeof(*png_prc));
     if (png_prc == NULL) 
@@ -28,6 +64,7 @@ png_processing_t *create_png_processing(void) {
 
     for (int i = 0; i < CHUNK_COUNT; ++i) {
         png_prc->chunks[i].required = NOT_REQUIRED;
+        png_prc->chunks[i].valid = NOT_VALID;
         init_vector(&(png_prc->chunks[i].info), NULL, 0, 0, 0);
     }
 

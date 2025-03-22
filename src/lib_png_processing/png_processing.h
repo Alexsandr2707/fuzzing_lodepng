@@ -56,5 +56,6 @@ typedef struct png_processing_t {
 
 png_processing_t *create_png_processing(void);
 void destroy_png_processing(png_processing_t *png_prc);
+int reset_png_processing(png_processing_t *png_prc);
 
 #endif

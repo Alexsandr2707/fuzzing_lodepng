@@ -3,7 +3,10 @@
 #include <time.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "png_random.h"
+#include "png_write.h"
 #include "png_processing.h"
 
 const int COLOR_TYPE[] = {PNG_COLOR_TYPE_GRAY, 
@@ -61,6 +64,16 @@ double max_double(double a, double b) {
         return b;
 }
 
+void make_randomize() {
+    int fd = open(RAND_FILE, O_RDONLY);
+    unsigned int seed;
+    if (read(fd, &seed, sizeof(seed)) != sizeof(seed)) {
+        seed = time(NULL);
+    }
+
+    srand(seed);
+    close(fd);
+}
 
 size_t rand_in_range(size_t min, size_t max) {
     return min + (rand() % (max - min + 1));
@@ -78,6 +91,18 @@ void generate_profile_name(char* name, size_t length) {
         name[i] = charset[rand() % (sizeof(charset) - 1)];
     }
     name[length - 1] = '\0';
+}
+
+void *get_random_data(size_t size) {
+    uint8_t *data = malloc(size);
+    if (data == NULL) 
+        return NULL;
+
+    for (size_t i = 0; i < size; ++i) {
+        data[i] = rand() % 256;
+    }
+
+    return data;
 }
 
 
@@ -749,5 +774,37 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
         }
     }
 
+    return 0;
+}
+
+int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size) {
+    if (png_prc == NULL) 
+        return -1;
+
+    int free_flag = 0;
+    if (pic == NULL) {
+        if (pic_size == 0) 
+            pic_size = rand_in_range(MIN_PIC_SIZE, MAX_PIC_SIZE);
+
+        pic = get_random_data(pic_size);
+        if (pic == NULL)
+            return -1;
+        free_flag = 1;
+    }
+
+    png_set_random_chunks(png_prc);
+
+    if (png_config_chunks(png_prc, pic_size) < 0) {
+        printf("bad config chunks\n");
+        return -1;
+    }
+
+    if (png_write(png_prc, pic) < 0) {
+        printf("Bad write ti vector\n");
+        return -1;
+    }
+    
+    if (free_flag)
+        free(pic);
     return 0;
 }

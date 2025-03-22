@@ -3,7 +3,7 @@ INCLUDE = ../../include
 BIN = ../../bin
 
 CC = clang
-CFLAGS = -c -O3 -g -Wall -I$(INCLUDE) -I. -I/AFLplusplus/include
+CFLAGS = -c -fPIC -O3 -g -Wall -I$(INCLUDE) -I. -I/AFLplusplus/include
 
 vector.o: vector.c
 		$(CC) $(CFLAGS) $^ -o$@
