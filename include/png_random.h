@@ -22,7 +22,7 @@ enum {
     PALETTE_SIZE = 256,
 
     ICC_HEADER_SIZE = 128,
-    MIN_ICC_DATA_SIZE = 0,
+    MIN_ICC_DATA_SIZE = 8,
     MAX_ICC_DATA_SIZE = 128,
 
 };

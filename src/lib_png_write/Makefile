@@ -2,12 +2,12 @@
 ROOT = ../..
 LIB = $(ROOT)/lib
 INCLUDE = $(ROOT)/include
-
+BIN = $(ROOT)/bin
 
 
 # compiler 
 CC = clang
-CFLAGS = -c -fPIC -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
+CFLAGS = -c -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
 
 
 
@@ -17,7 +17,7 @@ LD_FLAGS =
 
 
 # compile
-TARGET = lib_png_write.o
+TARGET = png_write.o
 CFILES = png_write.c
 
 $(TARGET): $(CFILES)
@@ -28,9 +28,9 @@ $(TARGET): $(CFILES)
 clean:
 		rm -f *.o $(TARGET)
 
-install: $(TARGET)
+install: 
 		cp png_write.h $(INCLUDE)
-		cp $(TARGET) $(LIB)
+		cp $(TARGET) $(BIN)
 		make clean
 
 all: $(TARGET) install

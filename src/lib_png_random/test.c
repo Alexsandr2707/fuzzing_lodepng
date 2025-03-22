@@ -60,6 +60,7 @@ void write_png_test() {
 }
 
 int main() {
+    fprintf(stderr, "run testing\n");
     srand(time(NULL));
     write_png_test();
     

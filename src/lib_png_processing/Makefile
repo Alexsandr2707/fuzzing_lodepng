@@ -2,14 +2,13 @@
 ROOT = ../..
 LIB = $(ROOT)/lib
 INCLUDE = $(ROOT)/include
+BIN = $(ROOT)/bin
 
 
 
 # compiler 
 CC = clang
-CFLAGS = -c -fPIC -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
-
-
+CFLAGS = -c -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
 
 #linker
 LD_FLAGS = 
@@ -17,21 +16,19 @@ LD_FLAGS =
 
 
 # compile
-TARGET = lib_png_processing.o
 CFILES = png_processing.c
+TARGET = png_processing.o
 
 $(TARGET): $(CFILES)
-		$(CC) $(CFLAGS) $^ -o $@ $(LD_FLAGS)
-
-
+		$(CC) $(CFLAGS) $^ -o $@ 
 
 clean:
-		rm -f *.o $(TARGET)
+		rm -f *.o *.a $(TARGET)
 
 install: 
 		cp png_processing.h $(INCLUDE)
-		cp $(TARGET) $(LIB)
+		cp $(TARGET) $(BIN)
 		make clean
 
-all: $(TARGET) install
+all: $(TARGET) install 
 
