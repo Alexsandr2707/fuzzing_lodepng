@@ -68,6 +68,8 @@ int png_config_pHYs(png_processing_t *png_prc);
 int png_config_sBIT(png_processing_t *png_prc);
 int png_config_sRGB(png_processing_t *png_prc);
 int png_config_tEXt(png_processing_t *png_prc);
+int png_config_iTXt(png_processing_t *png_prc);
+int png_config_tIME(png_processing_t *png_prc);
 
 int png_config_chunks(png_processing_t *png_prc, size_t pic_size);
 int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);

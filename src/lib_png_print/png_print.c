@@ -454,6 +454,24 @@ void print_TEXT_info(png_processing_t *png_prc) {
     print_chunk_end("TEXT", '-', PRINT_END_LENGTH);
 }
 
+void print_tIME_info(png_processing_t *png_prc) {
+    print_chunk_header("tIME", '-', PRINT_HEADER_LENGTH);
+
+    if (png_prc == NULL)
+        return ;
+
+    png_timep mod_time;
+    if (png_get_tIME(png_prc->png, png_prc->info, &mod_time)) {
+        printf("tIME chunk found\n");
+        printf("  Date and time: %04d-%02d-%02d %02d:%02d:%02d\n",
+               mod_time->year, mod_time->month, mod_time->day,
+               mod_time->hour, mod_time->minute, mod_time->second);
+    } else {
+        printf("tIME chunk undefined\n");
+    }
+    print_chunk_end("tIME", '-', PRINT_END_LENGTH);
+}
+
 void print_png_info(png_processing_t *png_prc) {
     print_chunk_header("PNGs", '#', PRINT_HEADER_LENGTH);
 
@@ -493,6 +511,8 @@ void print_png_info(png_processing_t *png_prc) {
     print_TEXT_info(png_prc);
     printf("\n");
 
+    print_tIME_info(png_prc);
+    printf("\n");
+
     print_chunk_end("PNGs", '#', PRINT_END_LENGTH);
 }
-

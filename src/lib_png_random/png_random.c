@@ -697,6 +697,20 @@ int png_config_iTXt(png_processing_t *png_prc) {
     return 0;
 }
 
+int png_config_tIME(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_tIME].required != IS_REQUIRED) 
+        return -1;
+
+    png_time mod_time;
+    time_t current_time = time(NULL);
+    png_convert_from_time_t(&mod_time, current_time);
+
+    png_set_tIME(png_prc->png, png_prc->info, &mod_time); 
+    png_prc->chunks[PNG_CHUNK_tIME].valid = IS_VALID;
+
+    return 0;
+}
+
 int is_config_chunk(PNGChunk_t *chunk) {
     if (chunk != NULL && chunk->required == IS_REQUIRED && 
         chunk->valid != IS_VALID) { 
@@ -788,6 +802,13 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
     if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_iTXt]))) {
         if (png_config_iTXt(png_prc) < 0) {
             printf("bad config iTXt\n");
+            return -1;
+        }
+    }
+
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_tIME]))) {
+        if (png_config_tIME(png_prc) < 0) {
+            printf("bad config tIME\n");
             return -1;
         }
     }
