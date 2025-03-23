@@ -467,9 +467,30 @@ void print_tIME_info(png_processing_t *png_prc) {
                mod_time->year, mod_time->month, mod_time->day,
                mod_time->hour, mod_time->minute, mod_time->second);
     } else {
-        printf("tIME chunk undefined\n");
+        printf("tIME chunk not found\n");
     }
     print_chunk_end("tIME", '-', PRINT_END_LENGTH);
+}
+
+void print_cSTM_info(png_processing_t *png_prc) {
+    print_chunk_header("cSTM", '-', PRINT_HEADER_LENGTH);
+
+    if (png_prc == NULL)
+        return ;
+
+    png_unknown_chunkp custom_chunks;
+    int num_custom_chunks = png_get_unknown_chunks(png_prc->png, png_prc->info, &custom_chunks);
+
+    if (num_custom_chunks > 0) {
+        printf("Custom chunk found:\n");
+        for (int i = 0; i < num_custom_chunks; i++) {
+            printf(" Chunk name: %.4s\n", custom_chunks[i].name);
+            printf("  Data: %.*s\n", (int)custom_chunks[i].size, custom_chunks[i].data);
+        }
+    } else {
+        printf("Custom chunk not found\n");
+    }
+    print_chunk_end("cSTM", '-', PRINT_END_LENGTH);
 }
 
 void print_png_info(png_processing_t *png_prc) {
@@ -512,6 +533,9 @@ void print_png_info(png_processing_t *png_prc) {
     printf("\n");
 
     print_tIME_info(png_prc);
+    printf("\n");
+
+    print_cSTM_info(png_prc);
     printf("\n");
 
     print_chunk_end("PNGs", '#', PRINT_END_LENGTH);

@@ -27,6 +27,7 @@ void print_sBIT_info(png_processing_t *png_prc);
 void print_sRGB_info(png_processing_t *png_prc);
 void print_TEXT_info(png_processing_t *png_prc);
 void print_tIME_info(png_processing_t *png_prc);
+void print_cSTM_info(png_processing_t *png_prc);
 
 void print_png_info(png_processing_t *png_prc);
 

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <png.h>
 
 void write_png_file(const char *filename, int width, int height, png_bytep *row_pointers) {
@@ -36,19 +37,22 @@ void write_png_file(const char *filename, int width, int height, png_bytep *row_
     // Устанавливаем заголовок PNG
     png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-    // Создаем текстовый чанк
-    png_text text_chunk;
-    text_chunk.compression = PNG_TEXT_COMPRESSION_NONE; // Для tEXT
-    text_chunk.key = "Title";                          // Ключ
-    text_chunk.text = "Example PNG Image";             // Текст
+    // Создаем пользовательский чанк
+    png_unknown_chunk custom_chunk;
+    const char *chunk_name = "mYcH"; // Имя чанка (4 символа)
+    const char *chunk_data = "This is custom chunk data!"; // Произвольные данные
+    png_size_t chunk_size = strlen(chunk_data); // Размер данных
 
-    // Добавляем текстовый чанк в PNG
-    png_set_text(png, info, &text_chunk, 1);
+    // Копируем имя чанка
+    memcpy(custom_chunk.name, chunk_name, 5); // 5 байт (4 символа + нулевой байт)
+    custom_chunk.data = (png_bytep)chunk_data; // Данные чанка
+    custom_chunk.size = chunk_size; // Размер данных
+    custom_chunk.location = PNG_HAVE_IHDR; // Место вставки чанка (после IHDR)
 
-    // После вызова png_set_text структура text_chunk больше не нужна
-    // Можно освободить память, если она была выделена динамически
+    // Добавляем пользовательский чанк
+    png_set_unknown_chunks(png, info, &custom_chunk, 1);
 
-    // Записываем заголовок и текстовые чанки
+    // Записываем заголовок и чанки
     png_write_info(png, info);
 
     // Записываем данные изображения
@@ -62,7 +66,7 @@ void write_png_file(const char *filename, int width, int height, png_bytep *row_
 }
 
 int main() {
-    const char *filename = "text_image.png";
+    const char *filename = "custom_chunk_image.png";
     int width = 640;
     int height = 480;
 
@@ -77,7 +81,7 @@ int main() {
         }
     }
 
-    // Записываем PNG с текстовым чанком
+    // Записываем PNG с пользовательским чанком
     write_png_file(filename, width, height, row_pointers);
 
     // Освобождаем память
@@ -85,6 +89,7 @@ int main() {
         free(row_pointers[y]);
     }
 
-    printf("PNG file with text chunk created: %s\n", filename);
+    printf("PNG файл с пользовательским чанком создан: %s\n", filename);
+
     return 0;
 }

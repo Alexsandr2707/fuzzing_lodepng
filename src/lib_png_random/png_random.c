@@ -43,6 +43,8 @@ const char *TEXT_TITLES[] = {"Title", "Author", "Descrioption", "Copyright", "Cr
 const int TEXT_COMPRESSION_TYPES[] = {PNG_TEXT_COMPRESSION_NONE, PNG_TEXT_COMPRESSION_zTXt};
 const int ITXT_COMPRESSION_TYPES[] = {PNG_ITXT_COMPRESSION_NONE, PNG_ITXT_COMPRESSION_zTXt};
 
+const int CSTM_CHUNK_PLACES[] = {PNG_HAVE_IHDR, PNG_HAVE_PLTE, PNG_AFTER_IDAT};
+
 //arrays sizes
 enum {
     COLOR_TYPE_SIZE = sizeof(COLOR_TYPE) / sizeof(COLOR_TYPE[0]),
@@ -66,6 +68,8 @@ enum {
 
     TEXT_COMPRESSION_TYPES_SIZE = sizeof(TEXT_COMPRESSION_TYPES) / sizeof(TEXT_COMPRESSION_TYPES[0]),
     ITXT_COMPRESSION_TYPES_SIZE = sizeof(ITXT_COMPRESSION_TYPES) / sizeof(ITXT_COMPRESSION_TYPES[0]),
+
+    CSTM_CHUNK_PLACES_SIZE = sizeof(CSTM_CHUNK_PLACES) / sizeof(CSTM_CHUNK_PLACES[0]),
 };
 
 const char *ENGLISH_CHARSET[] = {
@@ -711,6 +715,39 @@ int png_config_tIME(png_processing_t *png_prc) {
     return 0;
 }
 
+// custom chunk
+int png_config_cSTM(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_cSTM].required != IS_REQUIRED) 
+        return -1;
+
+    png_unknown_chunk custom_chunk= {};
+    const char chunk_name[] = "cSTM";
+
+    Vector *chunk_data = &(png_prc->chunks[PNG_CHUNK_cSTM].info);
+    clean_vector(chunk_data);
+
+    size_t text_size = rand_in_range(MIN_TEXT_SIZE, MAX_TEXT_SIZE);
+    if (write_random_text_to_vector(chunk_data, text_size, ENGLISH_CHARSET, ENGLISH_CHARSET_SIZE) < 0){
+        return -1;
+    }
+
+
+    memcpy(custom_chunk.name, chunk_name, 5); 
+    custom_chunk.data = (png_bytep) chunk_data->data; 
+    custom_chunk.size = chunk_data->len; 
+    custom_chunk.location = CSTM_CHUNK_PLACES[rand() % CSTM_CHUNK_PLACES_SIZE]; 
+
+    int color_type = png_get_color_type(png_prc->png, png_prc->info);
+    if (color_type != PNG_COLOR_TYPE_PALETTE && custom_chunk.location == PNG_HAVE_PLTE)
+        custom_chunk.location = PNG_HAVE_IHDR; 
+    
+    png_set_unknown_chunks(png_prc->png, png_prc->info, &custom_chunk, 1);
+
+    png_prc->chunks[PNG_CHUNK_cSTM].valid = IS_VALID;
+
+    return 0;
+}
+
 int is_config_chunk(PNGChunk_t *chunk) {
     if (chunk != NULL && chunk->required == IS_REQUIRED && 
         chunk->valid != IS_VALID) { 
@@ -812,6 +849,13 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
             return -1;
         }
     }
+
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_cSTM]))) {
+        if (png_config_cSTM(png_prc) < 0) {
+            printf("bad config cSTM\n");
+            return -1;
+        }
+    } 
     return 0;
 }
 

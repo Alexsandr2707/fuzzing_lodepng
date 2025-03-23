@@ -27,6 +27,8 @@ enum {
     PNG_CHUNK_tIME,  // Image last-modification time
     PNG_CHUNK_tRNS,  // Transparency
     PNG_CHUNK_zTXt,   // Compressed textual data
+
+    PNG_CHUNK_cSTM,   // Custom chunk
     
     CHUNK_COUNT,
 };
