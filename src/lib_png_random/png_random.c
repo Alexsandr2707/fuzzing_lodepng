@@ -25,19 +25,25 @@ const int INTERLACE_METHOD[] = {PNG_INTERLACE_NONE, PNG_INTERLACE_ADAM7};
 
 const int PHYS_UNIT_TYPES[] = {PNG_RESOLUTION_METER, PNG_RESOLUTION_UNKNOWN};
 
+const int SRGB_TYPES[] = {  PNG_sRGB_INTENT_PERCEPTUAL,
+                            PNG_sRGB_INTENT_RELATIVE,
+                            PNG_sRGB_INTENT_SATURATION,
+                            PNG_sRGB_INTENT_ABSOLUTE };
 //arrays sizes
 enum {
-    COLOR_TYPE_SIZE = 5,
+    COLOR_TYPE_SIZE = sizeof(COLOR_TYPE) / sizeof(COLOR_TYPE[0]),
 
-    GRAY_DEPTH_SIZE = 2,
-    PALETTE_DEPTH_SIZE = 1,
-    BASE_DEPTH_SIZE = 2,
+    GRAY_DEPTH_SIZE = sizeof(GRAY_DEPTH) / sizeof(GRAY_DEPTH[0]),
+    PALETTE_DEPTH_SIZE = sizeof(PALETTE_DEPTH) / sizeof(PALETTE_DEPTH[0]),
+    BASE_DEPTH_SIZE = sizeof(BASE_DEPTH) / sizeof(BASE_DEPTH[0]), 
 
-    COMPRESS_METHOD_SIZE = 1,
-    FILTER_METHOD_SIZE = 1,
-    INTERLACE_METHOD_SIZE = 2,
+    COMPRESS_METHOD_SIZE = sizeof(COMPRESS_METHOD) / sizeof(COMPRESS_METHOD[0]), 
+    FILTER_METHOD_SIZE = sizeof(FILTER_METHOD) / sizeof(FILTER_METHOD[0]), 
+    INTERLACE_METHOD_SIZE = sizeof(INTERLACE_METHOD) / sizeof(INTERLACE_METHOD[0]), 
 
-    PHYS_UNIT_TYPES_SIZE = 2,
+    PHYS_UNIT_TYPES_SIZE = sizeof(PHYS_UNIT_TYPES) / sizeof(PHYS_UNIT_TYPES[0]),
+
+    SRGB_TYPES_SIZE = sizeof(SRGB_TYPES) / sizeof(SRGB_TYPES[0]),
 };
 
 size_t min(size_t a, size_t b) {
@@ -448,6 +454,9 @@ int png_config_iCCP(png_processing_t *png_prc) {
     if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_iCCP].required != IS_REQUIRED) 
         return -1;
 
+    if (png_prc->chunks[PNG_CHUNK_sRGB].valid == IS_VALID)
+        return 0;
+
     unsigned char* profile;
     size_t profile_size;
 
@@ -523,6 +532,21 @@ int png_config_sBIT(png_processing_t *png_prc) {
 
 }
 
+int png_config_sRGB(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_sRGB].required != IS_REQUIRED) 
+        return -1;
+
+    if (png_prc->chunks[PNG_CHUNK_iCCP].valid == IS_VALID)
+        return 0;
+
+    int intend_type = SRGB_TYPES[rand_in_range(0, SRGB_TYPES_SIZE - 1)];
+    
+    png_set_sRGB(png_prc->png, png_prc->info, intend_type);
+    png_prc->chunks[PNG_CHUNK_sRGB].valid = IS_VALID;
+
+    return 0;
+}
+
 int is_config_chunk(PNGChunk_t *chunk) {
     if (chunk != NULL && chunk->required == IS_REQUIRED && 
         chunk->valid != IS_VALID) { 
@@ -592,6 +616,13 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
     if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_sBIT]))) {
         if (png_config_sBIT(png_prc) < 0) {
             printf("bad config sBIT\n");
+            return -1;
+        }
+    }
+
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_sRGB]))) {
+        if (png_config_sRGB(png_prc) < 0) {
+            printf("bad config sRGB\n");
             return -1;
         }
     }

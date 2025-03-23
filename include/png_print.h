@@ -24,6 +24,7 @@ void print_gAMA_info(png_processing_t *png_prc);
 void print_iCCP_info(png_processing_t *png_prc);
 void print_pHYs_info(png_processing_t *png_prc);
 void print_sBIT_info(png_processing_t *png_prc);
+void print_sRGB_info(png_processing_t *png_prc);
 
 void print_png_info(png_processing_t *png_prc);
 

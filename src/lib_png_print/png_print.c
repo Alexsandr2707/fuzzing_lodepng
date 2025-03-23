@@ -362,6 +362,46 @@ void print_sBIT_info(png_processing_t *png_prc) {
     print_chunk_end("sBIT", '-', PRINT_END_LENGTH);
 }
 
+void print_sRGB_info(png_processing_t *png_prc) {
+    print_chunk_header("sRGB", '-', PRINT_HEADER_LENGTH);
+
+    if (png_prc == NULL)
+        return ;
+
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_sRGB]));
+
+    int intend;
+
+    if (png_get_sRGB(png_prc->png, png_prc->info, &intend) != PNG_INFO_sRGB) {
+        printf("sRGB chunk not found in the file\n");
+    } else {
+        // Вывод содержимого чанка sRGB
+        printf("sRGB chunk found\n");
+        printf("  Rendering intent: %d\n", intend);
+        switch (intend) {
+            case PNG_sRGB_INTENT_PERCEPTUAL:
+                printf("  Intent: Perceptual\n");
+                break;
+            case PNG_sRGB_INTENT_RELATIVE:
+                printf("  Intent: Relative\n");
+                break;
+            case PNG_sRGB_INTENT_SATURATION:
+                printf("  Intent: Saturation\n");
+                break;
+            case PNG_sRGB_INTENT_ABSOLUTE:
+                printf("  Intent: Absolute\n");
+                break;
+            default:
+                printf("  Intent: Unknown\n");
+                break;
+        }
+    }
+
+
+
+    print_chunk_end("sRGB", '-', PRINT_END_LENGTH);
+}
+
 void print_png_info(png_processing_t *png_prc) {
     print_chunk_header("PNGs", '#', PRINT_HEADER_LENGTH);
 
@@ -393,6 +433,9 @@ void print_png_info(png_processing_t *png_prc) {
     printf("\n");
 
     print_sBIT_info(png_prc);
+    printf("\n");
+
+    print_sRGB_info(png_prc);
     printf("\n");
 
     print_chunk_end("PNGs", '#', PRINT_END_LENGTH);
