@@ -52,28 +52,9 @@ int channels_count(int color_type);
 int calculate_bytes_per_pixel(int color_type, int bit_depth);
 
 
-void print_hw(int height, int width);
-void print_color_type(int color_type);
-void print_bit_depth(int bit_depth);
-void print_compress_method(int compress_method);
-void print_filter_method(int filter_method);
-void print_interlace_method(int interlace_method);
-
 void make_randomize(); // !!! important
 int get_random_hw(size_t pic_size, size_t *height, size_t *width);
 int png_set_random_chunks(png_processing_t *png_prc);
-
-
-void print_IHDR_info(png_processing_t *png_prc);
-void print_bKGD_info(png_processing_t *png_prc);
-void print_tRNS_info(png_processing_t *png_prc);
-void print_sPLT_info(png_processing_t *png_prc);
-void print_gAMA_info(png_processing_t *png_prc);
-void print_iCCP_info(png_processing_t *png_prc);
-void print_pHYs_info(png_processing_t *png_prc);
-
-void print_png_info(png_processing_t *png_prc);
-
 
 int png_config_IHDR(png_processing_t *png_prc, size_t pic_size);
 
@@ -83,6 +64,7 @@ int png_config_sPLT(png_processing_t *png_prc);
 int png_config_cHRM(png_processing_t *png_prc);
 int png_config_iCCP(png_processing_t *png_prc);
 int png_config_pHYs(png_processing_t *png_prc);
+int png_config_sBIT(png_processing_t *png_prc);
 
 int png_config_chunks(png_processing_t *png_prc, size_t pic_size);
 int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);

@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "png_random.h"
+#include "png_print.h"
 #include "png_write.h"
 #include "png_processing.h"
 
