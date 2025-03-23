@@ -47,6 +47,25 @@ void print_chunk_end(const char chunk_name[5], char fill_sym, int len) {
     printf("\n");
 }
 
+const char *get_text_compression_type(int compression) {
+    switch (compression) {
+        case PNG_TEXT_COMPRESSION_NONE_WR:
+            return "None (tEXT, WR)";
+        case PNG_TEXT_COMPRESSION_zTXt_WR:
+            return "Deflate (zTXt, WR)";
+        case PNG_TEXT_COMPRESSION_NONE:
+            return "None (tEXT)";
+        case PNG_TEXT_COMPRESSION_zTXt:
+            return "Deflate (zTXt)";
+        case PNG_ITXT_COMPRESSION_NONE:
+            return "None (iTXt)";
+        case PNG_ITXT_COMPRESSION_zTXt:
+            return "Deflate (iTXt)";
+        default:
+            return "Unknown";
+    }
+}
+
 void print_hw(int height, int width) {
     printf("  height: %d\n", height);
     printf("  width: %d\n", width);
@@ -397,9 +416,42 @@ void print_sRGB_info(png_processing_t *png_prc) {
         }
     }
 
-
-
     print_chunk_end("sRGB", '-', PRINT_END_LENGTH);
+}
+
+void print_TEXT_info(png_processing_t *png_prc) {
+    print_chunk_header("TEXT", '-', PRINT_HEADER_LENGTH);
+
+    if (png_prc == NULL)
+        return ;
+
+    printf("for CHUNK_tEXt\n");
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_tEXt]));
+    printf("for CHUNK_iTXt\n");
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_iTXt]));
+
+
+    png_textp text_chunks;
+    int num_text_chunks = png_get_text(png_prc->png, png_prc->info, &text_chunks, NULL);
+
+    if (num_text_chunks > 0) {
+        printf("Found %d text chunk(s):\n", num_text_chunks);
+        for (int i = 0; i < num_text_chunks; i++) {
+            printf("  Key: %s\n", text_chunks[i].key);
+            printf("  Text: %s\n", text_chunks[i].text);
+
+            printf("  Compression: %d - %s\n", text_chunks[i].compression, get_text_compression_type(text_chunks[i].compression));
+            if (text_chunks[i].lang) {
+                printf("  Language: %s\n", text_chunks[i].lang);
+                printf("  Translated Key: %s\n", text_chunks[i].lang_key);
+            }
+            printf("\n");
+        }
+    } else {
+        printf("No text chunks found in the PNG file.\n");
+    }
+
+    print_chunk_end("TEXT", '-', PRINT_END_LENGTH);
 }
 
 void print_png_info(png_processing_t *png_prc) {
@@ -436,6 +488,9 @@ void print_png_info(png_processing_t *png_prc) {
     printf("\n");
 
     print_sRGB_info(png_prc);
+    printf("\n");
+
+    print_TEXT_info(png_prc);
     printf("\n");
 
     print_chunk_end("PNGs", '#', PRINT_END_LENGTH);

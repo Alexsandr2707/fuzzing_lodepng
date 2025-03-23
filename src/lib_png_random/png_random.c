@@ -9,6 +9,13 @@
 #include "png_write.h"
 #include "png_processing.h"
 
+typedef struct {
+    const char *lang;
+    const char **charset;
+    size_t charset_size;
+    const char **titles;
+} Language;
+
 const int COLOR_TYPE[] = {PNG_COLOR_TYPE_GRAY, 
                           PNG_COLOR_TYPE_RGB, 
                           PNG_COLOR_TYPE_PALETTE, 
@@ -29,6 +36,13 @@ const int SRGB_TYPES[] = {  PNG_sRGB_INTENT_PERCEPTUAL,
                             PNG_sRGB_INTENT_RELATIVE,
                             PNG_sRGB_INTENT_SATURATION,
                             PNG_sRGB_INTENT_ABSOLUTE };
+
+const char *TEXT_TITLES[] = {"Title", "Author", "Descrioption", "Copyright", "Creation Time", 
+                             "Comment", "Soft"};
+
+const int TEXT_COMPRESSION_TYPES[] = {PNG_TEXT_COMPRESSION_NONE, PNG_TEXT_COMPRESSION_zTXt};
+const int ITXT_COMPRESSION_TYPES[] = {PNG_ITXT_COMPRESSION_NONE, PNG_ITXT_COMPRESSION_zTXt};
+
 //arrays sizes
 enum {
     COLOR_TYPE_SIZE = sizeof(COLOR_TYPE) / sizeof(COLOR_TYPE[0]),
@@ -44,7 +58,50 @@ enum {
     PHYS_UNIT_TYPES_SIZE = sizeof(PHYS_UNIT_TYPES) / sizeof(PHYS_UNIT_TYPES[0]),
 
     SRGB_TYPES_SIZE = sizeof(SRGB_TYPES) / sizeof(SRGB_TYPES[0]),
+
+    TEXT_TITLES_SIZE = sizeof(TEXT_TITLES)/ sizeof(TEXT_TITLES[0]),
+    TEXT_CHUNK_MAX_COUNT = TEXT_TITLES_SIZE,
+    MIN_TEXT_SIZE = 1,
+    MAX_TEXT_SIZE = 100,
+
+    TEXT_COMPRESSION_TYPES_SIZE = sizeof(TEXT_COMPRESSION_TYPES) / sizeof(TEXT_COMPRESSION_TYPES[0]),
+    ITXT_COMPRESSION_TYPES_SIZE = sizeof(ITXT_COMPRESSION_TYPES) / sizeof(ITXT_COMPRESSION_TYPES[0]),
 };
+
+const char *ENGLISH_CHARSET[] = {
+    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+    "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
+};
+const char *RUSSIAN_CHARSET[] = {
+        "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М",
+        "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ",
+        "Ы", "Ь", "Э", "Ю", "Я",
+        "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м",
+        "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ",
+        "ы", "ь", "э", "ю", "я"
+    };
+enum {
+    ENGLISH_CHARSET_SIZE = sizeof(ENGLISH_CHARSET) / sizeof(ENGLISH_CHARSET[0]),
+    RUSSIAN_CHARSET_SIZE = sizeof(RUSSIAN_CHARSET) / sizeof(RUSSIAN_CHARSET[0]),
+};
+
+const char *RUSSIAN_TEXT_TITLES[] = {"Заголовок", "Автор", "Описание", "Авторские права", "Время создания", "Комментарий", "Программа"};
+
+const Language LANGUAGES[] = {{"ru", RUSSIAN_CHARSET, RUSSIAN_CHARSET_SIZE, RUSSIAN_TEXT_TITLES}, 
+                              {"en", ENGLISH_CHARSET, ENGLISH_CHARSET_SIZE, TEXT_TITLES}};
+
+enum {
+    LANGUAGES_SIZE = sizeof(LANGUAGES) / sizeof(LANGUAGES[0]),
+};
+
+
+enum {
+    NOT_USED,
+    USED,
+};
+int used_text_titles[TEXT_TITLES_SIZE] = {};
 
 size_t min(size_t a, size_t b) {
     if (a <= b) 
@@ -95,12 +152,8 @@ double rand_in_range_double(double min, double max) {
     return min + random * (max - min);
 }
 
-void generate_profile_name(char* name, size_t length) {
-    const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (size_t i = 0; i < length - 1; i++) {
-        name[i] = charset[rand() % (sizeof(charset) - 1)];
-    }
-    name[length - 1] = '\0';
+const char *get_rand_sym(const char *charset[], size_t charset_size) {
+    return charset[rand() % charset_size];
 }
 
 void *get_random_data(size_t size) {
@@ -115,6 +168,23 @@ void *get_random_data(size_t size) {
     return data;
 }
 
+int write_random_text_to_vector(Vector *vector, size_t text_size, const char **charset, size_t charset_size) {
+    if (vector == NULL) 
+        return -1;
+    
+    if (text_size == 0)
+        return 0;
+
+    const char *sym;
+    for (size_t i = 0; i < text_size; ++i) {
+        sym = get_rand_sym(charset, charset_size);
+        write_to_vector(vector, sym, strlen(sym));
+    }
+
+    sym = "\0";
+    write_to_vector(vector, sym, 1);
+    return 0;
+}   
 
 // pixel_count == height * width (not real size of picture)
 int get_random_hw(size_t pixel_count, size_t *height, size_t *width) {
@@ -183,6 +253,11 @@ int get_color_range(png_processing_t *png_prc, size_t *min_color, size_t *max_co
     }
 
     return 0;
+}
+
+void reset_used_text_titles() {
+    for (int i = 0; i < TEXT_TITLES_SIZE; ++i) 
+        used_text_titles[i] = NOT_USED;
 }
 
 // also set compression level
@@ -503,7 +578,7 @@ int png_config_sBIT(png_processing_t *png_prc) {
 
     int color_type = png_get_color_type(png_prc->png, png_prc->info);
     int bit_depth = png_get_bit_depth(png_prc->png, png_prc->info);
-    int min_bit = 0;
+    int min_bit = 1;
     int max_bit = bit_depth;
 
     png_color_8 sig_bit;
@@ -543,6 +618,81 @@ int png_config_sRGB(png_processing_t *png_prc) {
     
     png_set_sRGB(png_prc->png, png_prc->info, intend_type);
     png_prc->chunks[PNG_CHUNK_sRGB].valid = IS_VALID;
+
+    return 0;
+}
+
+int png_config_tEXt(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_tEXt].required != IS_REQUIRED) 
+        return -1;
+
+    Vector *full_text = &(png_prc->chunks[PNG_CHUNK_tEXt].info);
+    clean_vector(full_text);
+
+    png_text text_chunks[TEXT_CHUNK_MAX_COUNT] = {};
+    int chunk_count = 0;
+
+    for (int i = 0; i < TEXT_CHUNK_MAX_COUNT; ++i) {
+        if (rand_in_range(0, 1) || used_text_titles[i] == USED) {
+            continue;
+        }
+
+        used_text_titles[i] = USED;
+
+        text_chunks[chunk_count].compression = TEXT_COMPRESSION_TYPES[rand() % TEXT_COMPRESSION_TYPES_SIZE]; 
+        text_chunks[chunk_count].key = TEXT_TITLES[i];
+    
+        size_t text_size = rand_in_range(MIN_TEXT_SIZE, MAX_TEXT_SIZE);
+        if (write_random_text_to_vector(full_text, text_size, ENGLISH_CHARSET, ENGLISH_CHARSET_SIZE) < 0)
+            return -1;
+
+        text_chunks[chunk_count].text = full_text->data + full_text->len - text_size;
+        ++chunk_count;
+    }
+
+    png_set_text(png_prc->png, png_prc->info, text_chunks, chunk_count);
+    png_prc->chunks[PNG_CHUNK_tEXt].valid = IS_VALID;
+
+    return 0;
+}
+
+int png_config_iTXt(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_iTXt].required != IS_REQUIRED) 
+        return -1;
+
+    Vector *full_text = &(png_prc->chunks[PNG_CHUNK_iTXt].info);
+    clean_vector(full_text);
+
+    png_text text_chunks[TEXT_CHUNK_MAX_COUNT] = {};
+    int chunk_count = 0;
+
+    for (int i = 0; i < TEXT_CHUNK_MAX_COUNT; ++i) {
+        if (rand_in_range(0, 1) || used_text_titles[i] == USED) {
+            continue;
+        }
+
+        used_text_titles[i] = USED;
+
+        text_chunks[chunk_count].compression = ITXT_COMPRESSION_TYPES[rand() % ITXT_COMPRESSION_TYPES_SIZE]; 
+        text_chunks[chunk_count].key = TEXT_TITLES[i];
+   
+        int language = rand() % LANGUAGES_SIZE;
+
+        text_chunks[chunk_count].lang = LANGUAGES[language].lang;
+        text_chunks[chunk_count].lang_key = LANGUAGES[language].titles[i];
+
+        size_t text_size = rand_in_range(MIN_TEXT_SIZE, MAX_TEXT_SIZE);
+        size_t old_text_size = full_text->len;
+
+        if (write_random_text_to_vector(full_text, text_size, LANGUAGES[language].charset, LANGUAGES[language].charset_size) < 0)
+            return -1;
+
+        text_chunks[chunk_count].text = full_text->data + old_text_size;
+        ++chunk_count;
+    }
+
+    png_set_text(png_prc->png, png_prc->info, text_chunks, chunk_count);
+    png_prc->chunks[PNG_CHUNK_iTXt].valid = IS_VALID;
 
     return 0;
 }
@@ -627,6 +777,20 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
         }
     }
 
+    reset_used_text_titles();
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_tEXt]))) {
+        if (png_config_tEXt(png_prc) < 0) {
+            printf("bad config tEXt\n");
+            return -1;
+        }
+    }
+
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_iTXt]))) {
+        if (png_config_iTXt(png_prc) < 0) {
+            printf("bad config iTXt\n");
+            return -1;
+        }
+    }
     return 0;
 }
 
@@ -653,7 +817,7 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size) {
     }
 
     if (png_write(png_prc, pic) < 0) {
-        printf("Bad write ti vector\n");
+        printf("Bad write to vector\n");
         return -1;
     }
     

@@ -2,84 +2,89 @@
 #include <stdlib.h>
 #include <png.h>
 
-#define WIDTH 256
-#define HEIGHT 256
-#define OUTPUT_FILE "red_alpha.png"
-
-void write_png(const char* filename, int width, int height) {
+void write_png_file(const char *filename, int width, int height, png_bytep *row_pointers) {
     FILE *fp = fopen(filename, "wb");
     if (!fp) {
         fprintf(stderr, "Could not open file %s for writing\n", filename);
-        return;
+        exit(1);
     }
 
-    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png_ptr) {
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png) {
+        fprintf(stderr, "Could not allocate write struct\n");
         fclose(fp);
-        return;
+        exit(1);
     }
 
-    png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
-        png_destroy_write_struct(&png_ptr, NULL);
+    png_infop info = png_create_info_struct(png);
+    if (!info) {
+        fprintf(stderr, "Could not allocate info struct\n");
+        png_destroy_write_struct(&png, NULL);
         fclose(fp);
-        return;
+        exit(1);
     }
 
-    if (setjmp(png_jmpbuf(png_ptr))) {
-        png_destroy_write_struct(&png_ptr, &info_ptr);
+    if (setjmp(png_jmpbuf(png))) {
+        fprintf(stderr, "Error during png creation\n");
+        png_destroy_write_struct(&png, &info);
         fclose(fp);
-        return;
+        exit(1);
     }
 
-    png_init_io(png_ptr, fp);
+    png_init_io(png, fp);
 
-    // Настройка параметров изображения (RGBA с 8-битным альфа-каналом)
-    png_set_IHDR(png_ptr, info_ptr,
-                 width, height,
-                 8,                      // 8 бит на канал
-                 PNG_COLOR_TYPE_RGBA,    // RGBA (с альфа-каналом)
-                 PNG_INTERLACE_NONE,
-                 PNG_COMPRESSION_TYPE_DEFAULT,
-                 PNG_FILTER_TYPE_DEFAULT);
+    // Устанавливаем заголовок PNG
+    png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-     png_color_16 background;
-    background.red = 0x00;   // Красный
-    background.green = 0x00; // Зеленый
-    background.blue = 0xFF;  // Синий
-    png_set_bKGD(png_ptr, info_ptr, &background);
+    // Создаем текстовый чанк
+    png_text text_chunk;
+    text_chunk.compression = PNG_TEXT_COMPRESSION_NONE; // Для tEXT
+    text_chunk.key = "Title";                          // Ключ
+    text_chunk.text = "Example PNG Image";             // Текст
 
-    // Создаем массив данных пикселей
-    png_bytep row_pointers[HEIGHT];
-    for (int y = 0; y < height; y++) {
-        row_pointers[y] = (png_bytep)malloc(width * 4); // 4 байта на пиксель (RGBA)
-        
-        for (int x = 0; x < width * 4; x += 4) {
-            // Красный цвет (R=255, G=0, B=0)
-            row_pointers[y][x]   = 0xFF; // Red
-            row_pointers[y][x+1] = 0x00; // Green
-            row_pointers[y][x+2] = 0x00; // Blue
-            
-            // Альфа-канал (0 = прозрачный, 255 = непрозрачный)
-            // Здесь делаем градиент прозрачности сверху вниз
-            row_pointers[y][x+3] = y; // Alpha (0-255)
-        }
-    }
+    // Добавляем текстовый чанк в PNG
+    png_set_text(png, info, &text_chunk, 1);
 
-    png_set_rows(png_ptr, info_ptr, row_pointers);
-    png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    // После вызова png_set_text структура text_chunk больше не нужна
+    // Можно освободить память, если она была выделена динамически
 
-    // Очистка
-    for (int y = 0; y < height; y++) {
-        free(row_pointers[y]);
-    }
-    
-    png_destroy_write_struct(&png_ptr, &info_ptr);
+    // Записываем заголовок и текстовые чанки
+    png_write_info(png, info);
+
+    // Записываем данные изображения
+    png_write_image(png, row_pointers);
+
+    // Завершаем запись
+    png_write_end(png, NULL);
+
     fclose(fp);
+    png_destroy_write_struct(&png, &info);
 }
 
 int main() {
-    write_png(OUTPUT_FILE, WIDTH, HEIGHT);
-    printf("PNG image created: %s\n", OUTPUT_FILE);
+    const char *filename = "text_image.png";
+    int width = 640;
+    int height = 480;
+
+    // Создаем изображение (просто пример, заполняем его красным цветом)
+    png_bytep row_pointers[height];
+    for (int y = 0; y < height; y++) {
+        row_pointers[y] = (png_bytep)malloc(3 * width);
+        for (int x = 0; x < width; x++) {
+            row_pointers[y][3 * x + 0] = 255; // Красный
+            row_pointers[y][3 * x + 1] = 0;   // Зеленый
+            row_pointers[y][3 * x + 2] = 0;   // Синий
+        }
+    }
+
+    // Записываем PNG с текстовым чанком
+    write_png_file(filename, width, height, row_pointers);
+
+    // Освобождаем память
+    for (int y = 0; y < height; y++) {
+        free(row_pointers[y]);
+    }
+
+    printf("PNG file with text chunk created: %s\n", filename);
     return 0;
 }

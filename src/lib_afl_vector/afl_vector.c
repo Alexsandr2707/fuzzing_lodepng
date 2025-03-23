@@ -10,7 +10,7 @@ AFLVector *malloc_afl_vector(void);
 int init_afl_vector(AFLVector *vector, void *data, size_t len, size_t size, size_t max_size);
 void deinit_afl_vector(AFLVector *vector, int flag);
 void print_afl_vector_info(AFLVector *vector);
-AFLVector *write_to_afl_vector(AFLVector *vector, void *buf, size_t buf_size);
+AFLVector *write_to_afl_vector(AFLVector *vector, const void *buf, size_t buf_size);
 
 int is_valid_afl_vector(AFLVector *vector) {
     if ((vector == NULL) || 
@@ -114,23 +114,25 @@ void print_afl_vector_info(AFLVector *vector) {
     fprintf(stdout, "----------------------------\n");
 }
     
-AFLVector *write_to_afl_vector(AFLVector *vector, void *buf, size_t buf_size) {
+AFLVector *write_to_afl_vector(AFLVector *vector, const void *buf, size_t buf_size) {
     if (!is_valid_afl_vector(vector) || buf == NULL) {
         return NULL;
     }
 
-    size_t new_size = vector->len + buf_size;
-    if (new_size > vector->max_size) {
-        return NULL;
+    if (vector->len + buf_size > vector->size) {
+        size_t new_size = vector->len + buf_size;
+        if (new_size > vector->max_size) {
+            return NULL;
+        }
+
+        void *new_data = afl_realloc(&(vector->data), new_size);
+        if (new_data == NULL)
+            return NULL;
+
+        vector->data = new_data;
+        vector->size = afl_alloc_bufsize(new_data);
     }
 
-    void *new_data = afl_realloc(&(vector->data), new_size);
-    if (new_data == NULL)
-        return NULL;
-
-    vector->data = new_data;
-    vector->size = afl_alloc_bufsize(new_data);
-    
     memcpy(vector->data + vector->len, buf, buf_size);
     vector->len += buf_size;
 

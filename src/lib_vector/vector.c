@@ -9,7 +9,7 @@ Vector *malloc_vector(void);
 int init_vector(Vector *vector, void *data, size_t len, size_t size, size_t max_size);
 void deinit_vector(Vector *vector, int flag);
 void print_vector_info(Vector *vector);
-int write_to_vector(Vector *vector, void *buf, size_t buf_size);
+int write_to_vector(Vector *vector, const void *buf, size_t buf_size);
 
 int is_valid_vector(Vector *vector) {
     if ((vector == NULL) || 
@@ -94,7 +94,7 @@ void clean_vector(Vector *vector) {
 }
 
     
-int write_to_vector(Vector *vector, void *buf, size_t buf_size) {
+int write_to_vector(Vector *vector, const void *buf, size_t buf_size) {
     if (!is_valid_vector(vector) || buf == NULL) {
         return -1;
     }
@@ -103,18 +103,20 @@ int write_to_vector(Vector *vector, void *buf, size_t buf_size) {
         return -1;
     }
 
-    size_t new_size = vector->size * 2 + buf_size;
-    if (new_size > vector->max_size) {
-        new_size = vector->max_size;
+    if (vector->len + buf_size > vector->size) {
+        size_t new_size = vector->size * 2 + buf_size;
+        if (new_size > vector->max_size) {
+            new_size = vector->max_size;
+        }
+
+        void *new_data = realloc(vector->data, new_size);
+        if (new_data == NULL)
+            return -1;
+
+        vector->data = new_data;
+        vector->size = new_size;
     }
 
-    void *new_data = realloc(vector->data, new_size);
-    if (new_data == NULL)
-        return -1;
-
-    vector->data = new_data;
-    vector->size = new_size;
-    
     memcpy(vector->data + vector->len, buf, buf_size);
     vector->len += buf_size;
 

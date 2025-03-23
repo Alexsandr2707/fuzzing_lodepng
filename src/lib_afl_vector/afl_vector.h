@@ -26,6 +26,6 @@ int init_afl_vector(AFLVector *vector, void *data, size_t len, size_t size, size
 void deinit_afl_vector(AFLVector *vector, int flag);
 void clean_afl_vector(AFLVector *afl_vector);
 void print_afl_vector_info(AFLVector *vector);
-AFLVector *write_to_afl_vector(AFLVector *vector, void *buf, size_t buf_size);
+AFLVector *write_to_afl_vector(AFLVector *vector, const void *buf, size_t buf_size);
 
 #endif
