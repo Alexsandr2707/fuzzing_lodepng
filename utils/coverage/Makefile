@@ -15,11 +15,11 @@ build: $(SRC)/fuzz_program/main.cpp $(SRC)/lodepng/lodepng.cpp $(INCLUDE)/lodepn
 		cd source && g++ -Og -g -fprofile-arcs -ftest-coverage -Isource -I/AFLplusplus/include *.cpp -o main --coverage
 
 live_coverage: build
-		$(COV) -d $(OUTPUT)  $(COVFLAGS) --live 
+		$(COV) -d $(OUTPUT)  $(COVFLAGS) --live  --overwrite
 		
 
 get_coverage: build
 		$(COV) -d $(OUTPUT)  $(COVFLAGS) 
 
 clean:
-		rm -rf ../output/cov
+		rm -rf $(OUTPUT)/cov

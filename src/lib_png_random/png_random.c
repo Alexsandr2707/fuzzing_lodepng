@@ -23,6 +23,8 @@ const int COMPRESS_METHOD[] = {PNG_COMPRESSION_TYPE_DEFAULT};
 const int FILTER_METHOD[] = {PNG_FILTER_TYPE_DEFAULT};
 const int INTERLACE_METHOD[] = {PNG_INTERLACE_NONE, PNG_INTERLACE_ADAM7};
 
+const int PHYS_UNIT_TYPES[] = {PNG_RESOLUTION_METER, PNG_RESOLUTION_UNKNOWN};
+
 //arrays sizes
 enum {
     COLOR_TYPE_SIZE = 5,
@@ -34,6 +36,8 @@ enum {
     COMPRESS_METHOD_SIZE = 1,
     FILTER_METHOD_SIZE = 1,
     INTERLACE_METHOD_SIZE = 2,
+
+    PHYS_UNIT_TYPES_SIZE = 2,
 };
 
 size_t min(size_t a, size_t b) {
@@ -401,6 +405,88 @@ void print_iCCP_info(png_processing_t *png_prc) {
     printf("-------------------- print iCCP info DONE ---------------\n");
 }
 
+void print_pHYs_info(png_processing_t *png_prc) {
+    printf("-------------------- print pHYs info --------------------\n");
+    if (png_prc == NULL)
+        return ;
+    uint32_t res_x, res_y;
+    int unit_type;
+
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_pHYs]));
+
+    if (png_get_pHYs(png_prc->png, png_prc->info, &res_x, &res_y, &unit_type)) {
+        printf("pHYs chunk data:\n");
+        printf("  Resolution X: %u pixels per unit\n", res_x);
+        printf("  Resolution Y: %u pixels per unit\n", res_y);
+
+        switch (unit_type) {
+            case PNG_RESOLUTION_UNKNOWN:
+                printf("  Unit type: Unknown (aspect ratio)\n");
+                break;
+            case PNG_RESOLUTION_METER:
+                printf("  Unit type: Meters\n");
+                if (res_x == res_y) {
+                    double dpi = res_x * 0.0254; 
+                    printf("  Equivalent DPI: %.2f\n", dpi);
+                } 
+                break;
+            default:
+                printf("  Unit type: Invalid\n");
+                break;
+        }
+    } else {
+        printf("pHYs chunk not found in the PNG file.\n");
+    }
+
+    printf("-------------------- print pHYs info DONE ---------------\n");
+}
+
+void print_sBIT_info(png_processing_t *png_prc) {
+    printf("-------------------- print sBIT info --------------------\n");
+    if (png_prc == NULL)
+        return ;
+
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_sBIT]));
+
+    png_color_8p sBIT;
+    int color_type = png_get_color_type(png_prc->png, png_prc->info);
+
+    if (png_get_sBIT(png_prc->png, png_prc->info, &sBIT)) {
+        printf("Contents of sBIT chunk:\n");
+
+        switch (color_type) {
+            case PNG_COLOR_TYPE_GRAY:
+                printf("  Grayscale: %d significant bits\n", sBIT->gray);
+                break;
+            case PNG_COLOR_TYPE_GRAY_ALPHA:
+                printf("  Grayscale: %d significant bits\n", sBIT->gray);
+                printf("  Alpha: %d significant bits\n", sBIT->alpha);
+                break;
+            case PNG_COLOR_TYPE_RGB:
+                printf("  Red: %d significant bits\n", sBIT->red);
+                printf("  Green: %d significant bits\n", sBIT->green);
+                printf("  Blue: %d significant bits\n", sBIT->blue);
+                break;
+            case PNG_COLOR_TYPE_RGB_ALPHA:
+                printf("  Red: %d significant bits\n", sBIT->red);
+                printf("  Green: %d significant bits\n", sBIT->green);
+                printf("  Blue: %d significant bits\n", sBIT->blue);
+                printf("  Alpha: %d significant bits\n", sBIT->alpha);
+                break;
+            case PNG_COLOR_TYPE_PALETTE:
+                printf("  Palette: sBIT is not used\n");
+                break;
+            default:
+                printf("  Unknown color type\n");
+                break;
+        }
+    } else {
+        printf("sBIT chunk not found\n");
+    }
+
+    printf("-------------------- print sBIT info DONE ---------------\n");
+}
+
 void print_png_info(png_processing_t *png_prc) {
     printf("#################### print PNG info ####################\n\n");
     if (png_prc == NULL)
@@ -425,6 +511,12 @@ void print_png_info(png_processing_t *png_prc) {
     printf("\n");
 
     print_iCCP_info(png_prc);
+    printf("\n");
+
+    print_pHYs_info(png_prc);
+    printf("\n");
+
+    print_sBIT_info(png_prc);
     printf("\n");
     printf("#################### print PNG info DONE ####################\n\n");
 }
@@ -714,6 +806,64 @@ int png_config_iCCP(png_processing_t *png_prc) {
     return 0;
 }
 
+int png_config_pHYs(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_pHYs].required != IS_REQUIRED) 
+        return -1;
+
+    int unit_type = PHYS_UNIT_TYPES[rand_in_range(0, PHYS_UNIT_TYPES_SIZE - 1)];
+    uint32_t res_x, res_y;
+
+    if (unit_type == PNG_RESOLUTION_METER) {
+        res_x = rand_in_range(MIN_PHYS_METER, MAX_PHYS_METER);
+        res_y = res_x;
+    } else if (unit_type == PNG_RESOLUTION_UNKNOWN) {
+        res_x = rand_in_range(MIN_PHYS_UNKNOWN, MAX_PHYS_UNKNOWN);
+        res_y = rand_in_range(MIN_PHYS_UNKNOWN, MAX_PHYS_UNKNOWN);
+    } else {
+        return -1;
+    }
+
+    png_set_pHYs(png_prc->png, png_prc->info, res_x, res_y, unit_type);
+    png_prc->chunks[PNG_CHUNK_pHYs].valid = IS_VALID;
+
+    return 0;
+
+}
+
+int png_config_sBIT(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_sBIT].required != IS_REQUIRED) 
+        return -1;
+
+    int color_type = png_get_color_type(png_prc->png, png_prc->info);
+    int bit_depth = png_get_bit_depth(png_prc->png, png_prc->info);
+    int min_bit = 0;
+    int max_bit = bit_depth;
+
+    png_color_8 sig_bit;
+    if (color_type == PNG_COLOR_TYPE_GRAY) {
+        sig_bit.gray = rand_in_range(min_bit, max_bit); 
+    } else if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
+        sig_bit.gray = rand_in_range(min_bit, max_bit); 
+        sig_bit.alpha = rand_in_range(min_bit, max_bit); 
+    } else if (color_type == PNG_COLOR_TYPE_RGB) {
+        sig_bit.red = rand_in_range(min_bit, max_bit);
+        sig_bit.green = rand_in_range(min_bit, max_bit);
+        sig_bit.blue = rand_in_range(min_bit, max_bit);
+    } else if (color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
+        sig_bit.red = rand_in_range(min_bit, max_bit);
+        sig_bit.green = rand_in_range(min_bit, max_bit);
+        sig_bit.blue = rand_in_range(min_bit, max_bit); 
+        sig_bit.alpha = rand_in_range(min_bit, max_bit);
+    } else {
+        return 0;
+    }
+
+    png_set_sBIT(png_prc->png, png_prc->info, &sig_bit);
+    png_prc->chunks[PNG_CHUNK_sBIT].valid = IS_VALID;
+
+    return 0;
+
+}
 
 int is_config_chunk(PNGChunk_t *chunk) {
     if (chunk != NULL && chunk->required == IS_REQUIRED && 
@@ -770,6 +920,20 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
     if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_iCCP]))) {
         if (png_config_iCCP(png_prc) < 0) {
             printf("bad config iCCP\n");
+            return -1;
+        }
+    }
+
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_pHYs]))) {
+        if (png_config_pHYs(png_prc) < 0) {
+            printf("bad config pHYs\n");
+            return -1;
+        }
+    }
+
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_sBIT]))) {
+        if (png_config_sBIT(png_prc) < 0) {
+            printf("bad config sBIT\n");
             return -1;
         }
     }

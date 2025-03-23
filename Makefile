@@ -31,15 +31,16 @@ FUZZER = afl-fuzz
 DICTIONARY = $(DICTIONARIES)/png.dict
 CUSTOM_MUTATOR_LIBRARY="$(LIB)/libafl_custom_mutator.so"
 
-MAIN_FUZZER_FLAGS = -t 100 -c 0 -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
-WORKER_FUZZER_FLAGS = -t 100 -c 0 -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
+MAIN_FUZZER_FLAGS = -t 100  -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
+WORKER_FUZZER_FLAGS = -t 100 -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
 CMPLOG_FUZZER_FLAGS = -t 100 -c 0 -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
 COVERAGE_FLAGS = -d $(OUTPUT) -c ./ --cover-corpus --lcov-web-all 
 
 RESUME_FLAG = #AFL_AUTORESUME=1
-CUSTOM_MUTATORS = AFL_CUSTOM_MUTATOR_LIBRARY=$(CUSTOM_MUTATOR_LIBRARY)
+CUSTOM_MUTATORS =# AFL_CUSTOM_MUTATOR_LIBRARY=$(CUSTOM_MUTATOR_LIBRARY)
 
-
+custom_libs: 
+		cd src && make all
 
 # compile fuzz programs
 CXXFILES = $(SRC)/fuzz_program/main.cpp $(SRC)/lodepng/lodepng.cpp
@@ -73,11 +74,24 @@ run_workers: $(WORKER)
 		$(CUSTOM_MUTATORS) \
 		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(WORKER) @@ 
 
+run_cmploger: $(CMPLOGER)
+		$(RESUME) \
+		$(CUSTOM_MUTATORS) \
+		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(CMPLOGER) @@ 
+
+
 run_coverage: $(COVERAGE)
 		cd $(UTILS)/coverage && make live_coverage
 
 
+run_all: 
+		make run_main &
+		make run_workers > /dev/null &
+		make rum_cmploger > /dev/null &
+
 all:  $(WORKER) $(CMPLOGER) $(COVERAGE)
 
+
+
 clean:
-		rn -f $(BIN)/*
+		rn -f $(BIN)/* *.gnco

@@ -3,11 +3,8 @@ lib/
 *.o
 *.a
 *.so
+*.gnco
 input/
 input/*
 output/
 output/*
-pngsuite/
-pngsuite/*
-base_input/
-base_input/*

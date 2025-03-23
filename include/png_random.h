@@ -28,6 +28,11 @@ enum {
     MIN_ICC_DATA_SIZE = 8,
     MAX_ICC_DATA_SIZE = 128,
 
+    MIN_PHYS_METER = 1, 
+    MAX_PHYS_METER = 1000,
+
+    MIN_PHYS_UNKNOWN = 1, 
+    MAX_PHYS_UNKNOWN = 100,
 };
 
 #define ICC_PROFILE_NAME "RandomICCProfile"
@@ -65,6 +70,7 @@ void print_tRNS_info(png_processing_t *png_prc);
 void print_sPLT_info(png_processing_t *png_prc);
 void print_gAMA_info(png_processing_t *png_prc);
 void print_iCCP_info(png_processing_t *png_prc);
+void print_pHYs_info(png_processing_t *png_prc);
 
 void print_png_info(png_processing_t *png_prc);
 
@@ -76,6 +82,7 @@ int png_config_tRNS(png_processing_t *png_prc);
 int png_config_sPLT(png_processing_t *png_prc);
 int png_config_cHRM(png_processing_t *png_prc);
 int png_config_iCCP(png_processing_t *png_prc);
+int png_config_pHYs(png_processing_t *png_prc);
 
 int png_config_chunks(png_processing_t *png_prc, size_t pic_size);
 int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
