@@ -44,11 +44,26 @@ Fuzzing of lodepng library
 
 О РЕЗУЛЬТАТАХ ФАЗЗИНГА
 
-Подробные отчеты о фаззинге без мутатора можно найти в файлах [Статистика по линиям фаззинга без мутатора](docs/2_hours_without_custom_mutator_report/index.html), 
+К сожалению, чтобы подробнее посмотреть отчеты их придется загрузить открыть при помощи браузера (они в html формате и другого способа я не нашел)
+
+
+Подробные отчеты о фаззинге БЕЗ МУТАТОРА можно найти в файлах [Статистика по линиям фаззинга без мутатора](docs/2_hours_without_custom_mutator_report/index.html), 
 [Статистика по функциям фаззинга без мутатора](docs/2_hours_without_custom_mutator_report/fuzzing_lodepng/utils/coverage/source/main.cpp.func-sort-c.html)
+
+Статистика по линиям:
 ![Статистика без мутатора](docs/2_hours_without_custom_mutator_report/pics/2h_line_statistic.jpg)
 
 
-Подробные отчеты о фаззинге с мутатором можно найти в файлах [Статистика по линиям фаззинга с мутатором](docs/1_hour_custom_fuzzing_report/web/index.html), 
+
+Подробные отчеты о фаззинге С МУТАТОРОМ можно найти в файлах [Статистика по линиям фаззинга с мутатором](docs/1_hour_custom_fuzzing_report/web/index.html), 
 [Статистика по функциям фаззинга с мутатором](docs/1_hour_custom_fuzzing_report/web/fuzzing_lodepng/utils/coverage/source/lodepng.cpp.func-sort-c.html)
+
+Статистака по линиям:
 ![Статистика с мутатором](docs/1_hour_custom_fuzzing_report/pics/1h_statistic.jpg)
+
+
+Сразу же заметен прирост колличества линий и функций. Однако это только первый взгляд на результаты. При детальном рассмотрении все становится еще лучше!
+
+Рассмотрим теперь те же функции чтения чанков:
+
+![Статистика по функциям чтения чанков](docs/1_hour_custom_fuzzing_report/pics/1h_func_statistic.jpg)
