@@ -38,3 +38,10 @@ Fuzzing of lodepng library
 
 
 Основная библиотека, реализующая добаление чанков случайным образом находится в [png_random.c](src/lib_png_random/png_random.c)
+
+Реализация чуть более детально будет расписана здесь.
+
+
+О РЕЗУЛЬТАТАХ ФАЗЗИНГА
+
+Подробные отчеты о фаззинге без мутатора и с мутатором можно найти в файлах [Статистика по линиям фаззинга без мутатора](docs/2_hours_without_custom_mutator_report/index.html), [Статистика по функциям фаззинга без мутатора](docs/2_hours_without_custom_mutator_report/fuzzing_lodepng/utils/coverage/source/main.cpp.func-sort-c.html)
