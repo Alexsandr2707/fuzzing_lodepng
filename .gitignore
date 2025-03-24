@@ -5,8 +5,11 @@ lib/
 *.so
 *.gnco
 *.gcna
-input/
-input/*
+input/base_input/*
+input/base_input
+input/compressed_corpus/*
+input/pngsuite
+input/pngsuite/*
 output/
 output/*
 utils/coverage/source/*
