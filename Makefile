@@ -92,7 +92,7 @@ run_all:
 all:  $(WORKER) $(CMPLOGER) $(COVERAGE)
 
 custom_libs: 
-		mkdir -p $(LIB) $(INCLUDE)
+		mkdir -p $(LIB) $(INCLUDE) $(BIN)
 		@cd src && AFL_HEADERS=${AFL_HEADERS} make all
 
 clean:
