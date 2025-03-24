@@ -7,8 +7,10 @@ all: afl_vector.o install
 clean:
 		rm *.o test_vector
 
+AFL_HEADERS ?= /AFLplusplus/include
+
 CC = clang
-CFLAGS = -c -fPIC -O3 -g -Wall -I$(INCLUDE) -I. -I/AFLplusplus/include
+CFLAGS = -c -fPIC -O3 -g -Wall -I$(INCLUDE) -I. -I$(AFL_HEADERS)
 
 afl_vector.o: afl_vector.c
 		$(CC) $(CFLAGS) $^ -o$@

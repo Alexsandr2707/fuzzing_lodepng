@@ -3,12 +3,12 @@ ROOT = ../..
 LIB = $(ROOT)/lib
 INCLUDE = $(ROOT)/include
 BIN = $(ROOT)/bin
-
+AFL_HEADERS ?= /AFLplusplus/include
 
 # compiler 
 CC = clang
 SANITIZERS = #-fsanitize=memory
-CFLAGS = -c -fPIC -O2 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g $(SANITIZERS)
+CFLAGS = -c -fPIC -O2 -Wall -I$(AFL_HEADERS) -I. -I$(INCLUDE) -g $(SANITIZERS)
 
 AR = ar
 ARFLAGS = rsc

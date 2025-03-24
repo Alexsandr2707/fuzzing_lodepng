@@ -3,12 +3,12 @@ ROOT = ../..
 LIB = $(ROOT)/lib
 INCLUDE = $(ROOT)/include
 BIN = $(ROOT)/bin
-
+AFL_HEADERS ?= /AFLplusplus/include
 
 
 # compiler 
 CC = clang
-CFLAGS = -c -fPIC -O3 -Wall -I/AFLplusplus/include -I. -I$(INCLUDE) -g
+CFLAGS = -c -fPIC -O3 -Wall -I$(AFL_HEADERS) -I. -I$(INCLUDE) -g
 
 #linker
 LD_FLAGS = 

@@ -1,9 +1,10 @@
 LIB = ../../lib
 INCLUDE = ../../include
 BIN = ../../bin
+AFL_HEADERS ?= /AFLplusplus/include
 
 CC = clang
-CFLAGS = -c -fPIC -O3 -g -Wall -I$(INCLUDE) -I. -I/AFLplusplus/include
+CFLAGS = -c -fPIC -O3 -g -Wall -I$(INCLUDE) -I. -I$(AFL_HEADERS)
 
 vector.o: vector.c
 		$(CC) $(CFLAGS) $^ -o$@

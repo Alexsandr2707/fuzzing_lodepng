@@ -8,7 +8,7 @@ UTILS = utils
 DICTIONARIES = dictionaries
 BIN = bin
 
-
+AFL_HEADERS ?= /AFLplusplus/include
 
 # compiler
 CC = afl-clang-fast
@@ -92,7 +92,7 @@ run_all:
 all:  $(WORKER) $(CMPLOGER) $(COVERAGE)
 
 custom_libs: 
-		cd src && make all
+		@cd src && AFL_HEADERS=${AFL_HEADERS} make all
 
 clean:
 		rn -f $(BIN)/* *.gnco
