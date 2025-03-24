@@ -30,3 +30,7 @@ Fuzzing of lodepng library
 Поадания в необязательные чанки: cHRM, tIME, pHYs, sRGB, bKGD, tRNS, PLTE, sBIT, tEXt, iTXt, iCCP и т.д.
 
 ![Попадания в необязательные чанки](docs/2_hours_without_custom_mutator_report/pics/2h_fuzz_hits.jpg)
+
+
+Поэтому было решено реализовать мутатор случайным образом выбирающий допустимые и поддерживаемые libpng чанки и корректно записывающий их в буффер.
+
