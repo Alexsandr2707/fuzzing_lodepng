@@ -50,5 +50,5 @@ Fuzzing of lodepng library
 
 
 Подробные отчеты о фаззинге с мутатором можно найти в файлах [Статистика по линиям фаззинга с мутатором](docs/1_hours_with_custom_mutator_report/index.html), 
-[Статистика по функциям фаззинга с мутатором](docs/2_hours_with_custom_mutator_report/fuzzing_lodepng/utils/coverage/source/main.cpp.func-sort-c.html)
-![Статистика с мутатором](docs/1_hour_with_custom_mutator_report/pics/1h_statistic.jpg)
+[Статистика по функциям фаззинга с мутатором](docs/1_hour_with_custom_mutator_report/fuzzing_lodepng/utils/coverage/source/main.cpp.func-sort-c.html)
+![Статистика с мутатором](docs/1_hour_custom_fuzzing_report/pics/1h_statistic.jpg)
