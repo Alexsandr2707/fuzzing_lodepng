@@ -87,11 +87,12 @@ get_coverage: $(COVERAGE)
 run_all: 
 		make run_main &
 		make run_workers > /dev/null &
-		make rum_cmploger > /dev/null &
+		make run_cmploger > /dev/null &
 
 all:  $(WORKER) $(CMPLOGER) $(COVERAGE)
 
 custom_libs: 
+		mkdir -p $(LIB) $(INCLUDE)
 		@cd src && AFL_HEADERS=${AFL_HEADERS} make all
 
 clean:
