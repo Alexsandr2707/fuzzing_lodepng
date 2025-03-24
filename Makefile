@@ -39,9 +39,6 @@ COVERAGE_FLAGS = -d $(OUTPUT) -c ./ --cover-corpus --lcov-web-all
 RESUME_FLAG =# AFL_AUTORESUME=1
 CUSTOM_MUTATORS = AFL_CUSTOM_MUTATOR_LIBRARY=$(CUSTOM_MUTATOR_LIBRARY)
 
-custom_libs: 
-		cd src && make all
-
 # compile fuzz programs
 CXXFILES = $(SRC)/fuzz_program/main.cpp $(SRC)/lodepng/lodepng.cpp
 
@@ -94,7 +91,8 @@ run_all:
 
 all:  $(WORKER) $(CMPLOGER) $(COVERAGE)
 
-
+custom_libs: 
+		cd src && make all
 
 clean:
 		rn -f $(BIN)/* *.gnco
