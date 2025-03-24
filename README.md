@@ -44,4 +44,4 @@ Fuzzing of lodepng library
 
 О РЕЗУЛЬТАТАХ ФАЗЗИНГА
 
-Подробные отчеты о фаззинге без мутатора и с мутатором можно найти в файлах [Статистика по линиям фаззинга без мутатора](https://github.com/Alexsandr2707/fuzzing_lodepng/blob/main/docs/2_hours_without_custom_mutator_report/index.html), [Статистика по функциям фаззинга без мутатора](docs/2_hours_without_custom_mutator_report/fuzzing_lodepng/utils/coverage/source/main.cpp.func-sort-c.html)
+Подробные отчеты о фаззинге без мутатора и с мутатором можно найти в файлах [Статистика по линиям фаззинга без мутатора](https://raw.githack.com/Alexsandr2707/fuzzing_lodepng/blob/main/docs/2_hours_without_custom_mutator_report/index.html), [Статистика по функциям фаззинга без мутатора](docs/2_hours_without_custom_mutator_report/fuzzing_lodepng/utils/coverage/source/main.cpp.func-sort-c.html)
