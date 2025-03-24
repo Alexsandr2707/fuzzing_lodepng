@@ -1,0 +1,19 @@
+diff id:000336,sync:run_main,src:000121 -> id:000337,sync:run_main,src:000123,+cov
+Src file: /fuzzing_lodepng/utils/coverage/source/lodepng.cpp
+  New 'line' coverage: 4517
+  New 'line' coverage: 4518
+  New 'line' coverage: 4519
+  New 'line' coverage: 4520
+  New 'line' coverage: 4521
+  New 'line' coverage: 4522
+  New 'line' coverage: 4523
+  New 'line' coverage: 4524
+  New 'line' coverage: 4525
+  New 'line' coverage: 4526
+  New 'line' coverage: 4527
+  New 'line' coverage: 4528
+  New 'line' coverage: 4529
+  New 'line' coverage: 4530
+  New 'line' coverage: 4531
+  New 'line' coverage: 4532
+  New 'line' coverage: 4533

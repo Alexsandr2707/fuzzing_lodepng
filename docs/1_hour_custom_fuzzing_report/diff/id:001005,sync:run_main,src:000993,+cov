@@ -1,0 +1,4 @@
+diff id:001004,src:000401+000749,time:1168750,execs:2701314,op:libafl_custom_mutator,rep:4 -> id:001005,sync:run_main,src:000993,+cov
+Src file: /fuzzing_lodepng/utils/coverage/source/lodepng.cpp
+  New 'line' coverage: 2808
+  New 'line' coverage: 2810

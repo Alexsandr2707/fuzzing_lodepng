@@ -1,0 +1,12 @@
+diff id:000039,src:000002,time:111,execs:390,op:quick,pos:38,+cov -> id:000040,src:000002,time:114,execs:398,op:quick,pos:39,+cov
+Src file: /fuzzing_lodepng/utils/coverage/source/lodepng.cpp
+  New 'function' coverage: _Z23lodepng_chunk_ancillaryPKh()
+  New 'function' coverage: _ZL22lodepng_chunk_reservedPKh()
+  New 'line' coverage: 2748
+  New 'line' coverage: 2749
+  New 'line' coverage: 2758
+  New 'line' coverage: 2759
+  New 'line' coverage: 5436
+  New 'line' coverage: 5441
+  New 'line' coverage: 5445
+  New 'line' coverage: 5447

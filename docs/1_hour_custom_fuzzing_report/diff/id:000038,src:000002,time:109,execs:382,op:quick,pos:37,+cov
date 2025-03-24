@@ -1,0 +1,19 @@
+diff id:000037,src:000002,time:107,execs:374,op:quick,pos:36 -> id:000038,src:000002,time:109,execs:382,op:quick,pos:37,+cov
+Src file: /fuzzing_lodepng/utils/coverage/source/lodepng.cpp
+  New 'function' coverage: _ZL29lodepng_chunk_type_name_validPKh()
+  New 'line' coverage: 2737
+  New 'line' coverage: 2738
+  New 'line' coverage: 2739
+  New 'line' coverage: 2740
+  New 'line' coverage: 2741
+  New 'line' coverage: 5407
+  New 'line' coverage: 5410
+  New 'line' coverage: 5413
+  New 'line' coverage: 5416
+  New 'line' coverage: 5419
+  New 'line' coverage: 5422
+  New 'line' coverage: 5425
+  New 'line' coverage: 5428
+  New 'line' coverage: 5433
+  New 'line' coverage: 5434
+  New 'line' coverage: 7014

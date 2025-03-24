@@ -1,0 +1,8 @@
+diff id:000087,src:000002,time:3365,execs:11398,op:ext_UO,pos:37,+cov -> id:000088,src:000002,time:3367,execs:11406,op:ext_UO,pos:37,+cov
+Src file: /fuzzing_lodepng/utils/coverage/source/lodepng.cpp
+  New 'function' coverage: _ZL14readChunk_cHRMP11LodePNGInfoPKhm()
+  New 'line' coverage: 5069
+  New 'line' coverage: 5070
+  New 'line' coverage: 5408
+  New 'line' coverage: 5409
+  New 'line' coverage: 6985
