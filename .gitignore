@@ -4,7 +4,13 @@ lib/
 *.a
 *.so
 *.gnco
+*.gcna
 input/
 input/*
 output/
 output/*
+utils/coverage/source/*
+utils/coverage/source
+utils/minimize_corpus/all_inputs/*
+utils/minimize_corpus/cmin_inputs/*
+utils/minimize_corpus/tmin_inputs/*

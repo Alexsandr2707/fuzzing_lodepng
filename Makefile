@@ -37,7 +37,7 @@ CMPLOG_FUZZER_FLAGS = -t 100 -c 0 -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
 COVERAGE_FLAGS = -d $(OUTPUT) -c ./ --cover-corpus --lcov-web-all 
 
 RESUME_FLAG = #AFL_AUTORESUME=1
-CUSTOM_MUTATORS =# AFL_CUSTOM_MUTATOR_LIBRARY=$(CUSTOM_MUTATOR_LIBRARY)
+CUSTOM_MUTATORS = AFL_CUSTOM_MUTATOR_LIBRARY=$(CUSTOM_MUTATOR_LIBRARY)
 
 custom_libs: 
 		cd src && make all
@@ -82,6 +82,9 @@ run_cmploger: $(CMPLOGER)
 
 run_coverage: $(COVERAGE)
 		cd $(UTILS)/coverage && make live_coverage
+
+get_coverage: $(COVERAGE)
+		cd $(UTILS)/coverage && make get_coverage
 
 
 run_all: 

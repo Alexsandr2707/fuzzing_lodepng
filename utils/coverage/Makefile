@@ -19,7 +19,7 @@ live_coverage: build
 		
 
 get_coverage: build
-		$(COV) -d $(OUTPUT)  $(COVFLAGS) 
+		$(COV) -d $(OUTPUT)  $(COVFLAGS) --overwrite
 
 clean:
 		rm -rf $(OUTPUT)/cov

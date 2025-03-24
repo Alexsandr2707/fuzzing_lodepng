@@ -266,7 +266,8 @@ void reset_used_text_titles() {
 
 // also set compression level
 int png_config_IHDR(png_processing_t *png_prc, size_t pic_size) {
-    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_IHDR].required != IS_REQUIRED) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_IHDR].required != IS_REQUIRED || 
+        pic_size < MIN_PIC_SIZE) {
         return -1;
     }
     size_t height, width, pixel_count;
@@ -759,6 +760,9 @@ int is_config_chunk(PNGChunk_t *chunk) {
 
 int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
     if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_IHDR]))) {
+        if (pic_size < MIN_PIC_SIZE || pic_size > MAX_PIC_SIZE)
+            return -1;
+
         if (png_config_IHDR(png_prc, pic_size) < 0) {
             printf("bad config IHDR\n");
             return -1;
@@ -863,6 +867,10 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size) {
     if (png_prc == NULL) 
         return -1;
 
+    if (pic_size > MAX_PIC_SIZE) {
+        return -1;
+    }
+
     int free_flag = 0;
     if (pic == NULL) {
         if (pic_size == 0) 
@@ -872,6 +880,8 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size) {
         if (pic == NULL)
             return -1;
         free_flag = 1;
+    } else if (pic_size < MIN_PIC_SIZE) {
+        return -1;
     }
 
     png_set_random_chunks(png_prc);
