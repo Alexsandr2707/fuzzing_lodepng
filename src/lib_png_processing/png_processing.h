@@ -12,23 +12,23 @@ enum {
     PNG_CHUNK_IEND, // End chunk
     BASE_CHUNK_COUNT,
 
-    PNG_CHUNK_bKGD = BASE_CHUNK_COUNT,  // Background color
-    PNG_CHUNK_cHRM,  // Primary chromaticities and white point
-    PNG_CHUNK_gAMA,  // Image gamma
-    PNG_CHUNK_hIST,  // Image histogram
-    PNG_CHUNK_iCCP,  // Embedded ICC profile
-    PNG_CHUNK_iTXt,  // International textual data
-    PNG_CHUNK_pHYs,  // Physical pixel dimensions
-    PNG_CHUNK_sBIT,  // Significant bits
-    PNG_CHUNK_sPLT,  // Suggested palette
-    PNG_CHUNK_sRGB,  // Standard RGB color space
-    PNG_CHUNK_sTER,  // Stereo image indicator
-    PNG_CHUNK_tEXt,  // Textual data
-    PNG_CHUNK_tIME,  // Image last-modification time
-    PNG_CHUNK_tRNS,  // Transparency
-    PNG_CHUNK_zTXt,   // Compressed textual data
+    PNG_CHUNK_bKGD = BASE_CHUNK_COUNT,  // Background color - IMPLEMENTED
+    PNG_CHUNK_cHRM,  // Primary chromaticities and white point - IMPLEMENTED
+    PNG_CHUNK_gAMA,  // Image gamma - IMPLEMENTED
+    PNG_CHUNK_hIST,  // Image histogram - NOT IMPLEMENTED
+    PNG_CHUNK_iCCP,  // Embedded ICC profile - IMPLEMENTED
+    PNG_CHUNK_iTXt,  // International textual data - IMPLEMENTED
+    PNG_CHUNK_pHYs,  // Physical pixel dimensions - IMPLEMENTED
+    PNG_CHUNK_sBIT,  // Significant bits - IMPLEMENTED
+    PNG_CHUNK_sPLT,  // Suggested palette - IMPLEMENTED
+    PNG_CHUNK_sRGB,  // Standard RGB color space - IMPLEMENTED
+    PNG_CHUNK_sTER,  // Stereo image indicator - NOT IMPLEMENTED
+    PNG_CHUNK_tEXt,  // Textual data - IMPLEMENTED
+    PNG_CHUNK_tIME,  // Image last-modification time - IMPLEMENTED
+    PNG_CHUNK_tRNS,  // Transparency - IMPLEMENTED
+    PNG_CHUNK_zTXt,   // Compressed textual data - IMPLEMENTED
 
-    PNG_CHUNK_cSTM,   // Custom chunk
+    PNG_CHUNK_cSTM,   // Custom chunk - IMPLEMENTED
     
     CHUNK_COUNT,
 };
