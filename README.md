@@ -1,3 +1,3 @@
 # fuzzing_lodepng
-fuzzing of lodepng library
+Fuzzing of lodepng library
 

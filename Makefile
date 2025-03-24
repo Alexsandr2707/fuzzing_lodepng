@@ -36,7 +36,7 @@ WORKER_FUZZER_FLAGS = -t 100 -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
 CMPLOG_FUZZER_FLAGS = -t 100 -c 0 -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
 COVERAGE_FLAGS = -d $(OUTPUT) -c ./ --cover-corpus --lcov-web-all 
 
-RESUME_FLAG = #AFL_AUTORESUME=1
+RESUME_FLAG =# AFL_AUTORESUME=1
 CUSTOM_MUTATORS = AFL_CUSTOM_MUTATOR_LIBRARY=$(CUSTOM_MUTATOR_LIBRARY)
 
 custom_libs: 
@@ -64,18 +64,18 @@ $(COVERAGE): $(CXXFILES)
 # fuzzing
 run_main: $(WORKER)
 		AFL_FINAL_SYNC=1 \
-		$(RESUME) \
+		$(RESUME_FLAG) \
 		$(CUSTOM_MUTATORS) \
 		$(FUZZER) $(MAIN_FUZZER_FLAGS) -M $@ -- $(WORKER)  @@
 
 
 run_workers: $(WORKER)
-		$(RESUME) \
+		$(RESUME_FLAG) \
 		$(CUSTOM_MUTATORS) \
 		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(WORKER) @@ 
 
 run_cmploger: $(CMPLOGER)
-		$(RESUME) \
+		$(RESUME_FLAG) \
 		$(CUSTOM_MUTATORS) \
 		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(CMPLOGER) @@ 
 
