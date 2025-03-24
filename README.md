@@ -37,4 +37,4 @@ Fuzzing of lodepng library
 [Полный список реализованых чанков](include/png_processing.h)
 
 
-Основная библиотека, реализующая добаление чанков случайным образом находится в [](src/lib_png_random/png_random.c)
+Основная библиотека, реализующая добаление чанков случайным образом находится в [png_random.c](src/lib_png_random/png_random.c)
