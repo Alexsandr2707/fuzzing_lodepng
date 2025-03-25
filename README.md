@@ -123,7 +123,13 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 Реализующая пользовательский мутатор для фаззинга
 <br><br>
 
-ПРО UTILS не быть !!!
+## UTILS
+
+### Получение данных о покрытии
+Реальзованно при помощи afl-cov (См. [coverage](utils/coverage)) <br>
+Возможно необходима дополнительная насторойка путей после клонирования... <br>
+Полученные данные покрытий, как было озвучено ранее, находся в директориях [С МУТАТОРОМ](docs/1_hour_custom_fuzzing_report/web) и [БЕЗ МУТАТОРА](docs/2_hours_without_custom_mutator_report)
+
 
 ## ДЕМОНСТРАЦИЯ РАБОТЫ ФАЗЗЕРОВ
 
