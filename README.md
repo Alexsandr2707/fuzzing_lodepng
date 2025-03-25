@@ -176,7 +176,7 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 ![cmploger](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_cmploger.jpg)
 <br><br>
 
-### Скриншоты показывающие одновременную работу нескольких фаззеров
+### Скриншоты демонстрирующие одновременную работу нескольких фаззеров
 ![many_fuzzers](docs/1_hour_custom_fuzzing_report/pics/many_fuzzers.jpg)
 <br><br>
 
