@@ -112,7 +112,13 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 
 <br><br>
 
-### Библиотека [png_print]
+### Библиотека [png_print](src/lib_png_print)
+Библиотека необходима для вывода информации о png_processing_t и вообщем о структурах png. Побольшому счету необходима для отладки. 
+
+<br><br>
+
+### Библиотека [lodepng](src/lodepng)
+
 Реализация чуть более детально будет расписана здесь.<br><br><br>
 
 
