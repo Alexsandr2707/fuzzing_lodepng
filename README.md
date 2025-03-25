@@ -163,7 +163,8 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 <br><br>
 
 ### Скриншоты работы фаззера без мутатора (2 часа)
-Увы от того запуска отсался только 1 скриншот, при небходимости могу добавить еще 
+Увы от того запуска отсался только 1 скриншот, при небходимости могу добавить еще <br>
+
 ![Работа без мутатора](docs/2_hours_without_custom_mutator_report/pics/2h_fuzz_cmploger.jpg)
 <br><br>
 
