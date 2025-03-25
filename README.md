@@ -138,17 +138,25 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 -O3 -g -Wall -I. -Iinclude -Wextra -pedantic -ansi
 
 
-При запуске использовались флаги
+При запуске фаззера использовались флаги
 1) -t 100  я знаю, что программа не должна работать долго, так как я сам ограничивал размер входного файла, 100мс вполне хватило бы (и хватало)
 2) -i $(INPUT) - входная директория
 3) -o $(OUTPUT) - выходная директория
 4) -x $(DICTIONARY) - использовал [словарь](dictionaries) предлагаемый afl++ для фаззинга png
 5) -с 0 - (только для cmploger) для включения Comparison Logging
 6)  AFL_CUSTOM_MUTATOR_LIBRARY=$(CUSTOM_MUTATOR_LIBRARY) - для включения своего мутатора (работал хорошо, поэтому включил для всех)
-7)  AFL_FINAL_SYNC=1 - (только для main) для включения синхронизации его с остальными процессами
+7)  AFL_FINAL_SYNC=1 - (только для main) для включения синхронизации его с остальными процессами при завершении работы
+<br><br>
 
-   
-я просто указывал флаг пути к скомпилированной динамической библиотеке при запуске фаззера. 
+### Скриншоты работы фаззера без мутатора (2 часа)
+Увы от того запуска отсался только 1 скриншот, при небходимости могу добавить еще 
+![Работа без мутатора](docs/2_hours_without_custom_mutator_report/pics/2h_fuzz_cmploger.jpg)
+<br><br>
+
+### Скриншоты работы фаззера без мутатора (1 час)
+[main](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_main.jpg)
+[worker](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_worker.jpg)
+[cmploger](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_cmploger.jpg)
 
 ## О РЕЗУЛЬТАТАХ ФАЗЗИНГА
 
