@@ -109,15 +109,19 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 В этой же директории лежат файлы [test.c](src/lib_png_random/test.c) и [infinity_testing.sh](src/lib_png_random/infinity_testing.sh) позволяющие наглядно протестиировать работоспобность генерации случайных изображений (можно открыть выходное изображение и смотреть как оно меняется) при помощи реализованного мной вывода данных о сформированном изображении и утилиты pngcheck, подтверждающей корректность изображения.
 
 (Нужно просто запустить [infinity_testing.sh](src/lib_png_random/infinity_testing.sh))
-
 <br><br>
 
 ### Библиотека [png_print](src/lib_png_print)
 Библиотека необходима для вывода информации о png_processing_t и вообщем о структурах png. Побольшому счету необходима для отладки. 
-
 <br><br>
 
-### Библиотека [lodepng](src/lodepng)
+### Библиотека [lodepng](src/lodepng), [fuzz_program](src/fuzz_program)
+Библиотека и сама программа фаззинг которой и производится
+<br><br>
+
+### Библиотека [custom_mutator](src/custom_mutators)
+Реализующая пользовательский мутатор для фаззинга
+<br><br>
 
 Реализация чуть более детально будет расписана здесь.<br><br><br>
 
