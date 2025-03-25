@@ -34,7 +34,7 @@ CUSTOM_MUTATOR_LIBRARY="$(LIB)/libafl_custom_mutator.so"
 MAIN_FUZZER_FLAGS = -t 100  -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
 WORKER_FUZZER_FLAGS = -t 100 -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
 CMPLOG_FUZZER_FLAGS = -t 100 -c 0 -i $(INPUT) -o $(OUTPUT) -x $(DICTIONARY)
-COVERAGE_FLAGS = -d $(OUTPUT) -c $(BIN) --cover-corpus --lcov-web-all 
+# COVERAGE_FLAGS = -d $(OUTPUT) -c $(BIN) --cover-corpus --lcov-web-all 
 
 CUSTOM_MUTATORS = AFL_CUSTOM_MUTATOR_LIBRARY=$(CUSTOM_MUTATOR_LIBRARY)
 
@@ -53,8 +53,8 @@ $(CMPLOGER): $(CXXFILES)
 $(WORKER): $(CXXFILES)
 		$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 		
-$(COVERAGE): $(CXXFILES)
-		$(CXX) $(CXXFLAGS) $(COVFLAGS) $^ -o $@ $(LDFLAGS)
+#$(COVERAGE): $(CXXFILES)
+#		$(CXX) $(CXXFLAGS) $(COVFLAGS) $^ -o $@ $(LDFLAGS)
 		
 
 # fuzzing
@@ -73,10 +73,10 @@ run_cmploger: $(CMPLOGER)
 		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(CMPLOGER) @@ 
 
 
-run_coverage: $(COVERAGE)
+run_coverage: 
 		cd $(UTILS)/coverage && make live_coverage
 
-get_coverage: $(COVERAGE) 
+get_coverage: 
 		cd $(UTILS)/coverage && make get_coverage
 
 make_init_dirs:
