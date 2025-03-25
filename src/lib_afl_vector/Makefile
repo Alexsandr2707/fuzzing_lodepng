@@ -5,7 +5,7 @@ BIN = ../../bin
 all: afl_vector.o install
 
 clean:
-		rm *.o test_vector
+		rm *.o test
 
 AFL_HEADERS ?= /AFLplusplus/include
 
@@ -18,7 +18,7 @@ afl_vector.o: afl_vector.c
 test_vector.o: test_vector.c 
 		$(CC) $(CFLAGS) $^ -o$@
 
-test_vector: afl_vector.o test_vector.o 
+test: afl_vector.o test_vector.o 
 		$(CC) $^ -o$@
 
 install: 

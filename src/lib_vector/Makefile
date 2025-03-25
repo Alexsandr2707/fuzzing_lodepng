@@ -12,7 +12,7 @@ vector.o: vector.c
 test_vector.o: test_vector.c 
 		$(CC) $(CFLAGS) $^ -o$@
 
-test_vector: vector.o test_vector.o 
+test: vector.o test_vector.o 
 		$(CC) $^ -o$@
 
 
@@ -24,5 +24,5 @@ install:
 all: vector.o install
 
 clean:
-		rm *.o test_vector
+		rm *.o test
 
