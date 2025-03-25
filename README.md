@@ -145,6 +145,8 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 4) -x $(DICTIONARY) - использовал [словарь](dictionaries) предлагаемый afl++ для фаззинга png
 5) -с 0 - (только для cmploger) для включения Comparison Logging
 6)  AFL_CUSTOM_MUTATOR_LIBRARY=$(CUSTOM_MUTATOR_LIBRARY) - для включения своего мутатора (работал хорошо, поэтому включил для всех)
+7)  AFL_FINAL_SYNC=1 - (только для main) для включения синхронизации его с остальными процессами
+
    
 я просто указывал флаг пути к скомпилированной динамической библиотеке при запуске фаззера. 
 
