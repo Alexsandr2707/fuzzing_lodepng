@@ -3,7 +3,7 @@ lib/
 *.o
 *.a
 *.so
-*.gnco
+*.gcno
 *.gcna
 input/base_input/*
 input/base_input
