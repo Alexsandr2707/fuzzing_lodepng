@@ -92,4 +92,4 @@ custom_libs:
 		@cd src && AFL_HEADERS=${AFL_HEADERS} make all
 
 clean:
-		rn -f $(BIN)/* *.gnco
+		rm -f $(BIN)/* *.gnco
