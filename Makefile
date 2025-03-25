@@ -76,19 +76,20 @@ run_cmploger: $(CMPLOGER)
 run_coverage: $(COVERAGE)
 		cd $(UTILS)/coverage && make live_coverage
 
-get_coverage: $(COVERAGE)
+get_coverage: $(COVERAGE) 
 		cd $(UTILS)/coverage && make get_coverage
 
+make_init_dirs:
+		mkdir -p $(LIB) $(INCLUDE) $(BIN)
 
-run_all: 
+run_all: all
 		make run_main &
 		make run_workers > /dev/null &
 		make run_cmploger > /dev/null &
 
-all:  $(WORKER) $(CMPLOGER) $(COVERAGE)
+all:  make_init_dirs $(WORKER) $(CMPLOGER) $(COVERAGE)
 
-custom_libs: 
-		mkdir -p $(LIB) $(INCLUDE) $(BIN)
+custom_libs: make_init_dirs
 		@cd src && AFL_HEADERS=${AFL_HEADERS} make all
 
 clean:
