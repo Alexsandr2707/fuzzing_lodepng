@@ -154,11 +154,11 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 <br><br>
 
 ### Скриншоты работы фаззера без мутатора (1 час)
-[main](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_main.jpg)
+![main](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_main.jpg)
 
-[worker](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_worker.jpg)
+![worker](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_worker.jpg)
 
-[cmploger](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_cmploger.jpg)
+![cmploger](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_cmploger.jpg)
 <br><br>
 
 ## О РЕЗУЛЬТАТАХ ФАЗЗИНГА
