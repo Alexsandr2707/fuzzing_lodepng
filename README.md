@@ -107,6 +107,7 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 <br>
 
 В этой же директории лежат файлы [test.c](src/lib_png_random/test.c) и [infinity_testing.sh](src/lib_png_random/infinity_testing.sh) позволяющие наглядно протестиировать работоспобность генерации случайных изображений (можно открыть выходное изображение и смотреть как оно меняется) при помощи реализованного мной вывода данных о сформированном изображении и утилиты pngcheck, подтверждающей корректность изображения.
+
 (Нужно просто запустить [infinity_testing.sh](src/lib_png_random/infinity_testing.sh))
 
 <br><br>
