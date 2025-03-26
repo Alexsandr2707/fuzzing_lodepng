@@ -168,7 +168,7 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 ![Работа без мутатора](docs/2_hours_without_custom_mutator_report/pics/2h_fuzz_cmploger.jpg)
 <br><br>
 
-### Скриншоты работы фаззера без мутатора (1 час)
+### Скриншоты работы фаззера мутатора (1 час)
 ![main](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_main.jpg)
 
 ![worker](docs/1_hour_custom_fuzzing_report/pics/1h_fuzz_worker.jpg)
