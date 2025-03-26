@@ -10,8 +10,11 @@ input/base_input
 input/compressed_corpus/*
 input/pngsuite
 input/pngsuite/*
-output/
-output/*
+
+output/cov
+output/run_cmploger  
+output/run_workers
+
 utils/coverage/source/*
 utils/coverage/source
 utils/minimize_corpus/all_inputs/*
