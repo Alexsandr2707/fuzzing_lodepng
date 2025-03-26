@@ -10,14 +10,12 @@
 #include "png_print.h"
 
 png_processing_t *afl_custom_init(void *afl) {
-   // fprintf(stderr, "-----------------afl_custom_init-----------------------\n");
     png_processing_t *png_prc = create_png_processing();
     if (png_prc == NULL)
         return NULL;
 
     make_randomize();
 
-    //fprintf(stderr, "-----------------afl_custom_init DONE-----------------------\n");
     return png_prc;
 }
 
