@@ -25,8 +25,8 @@ enum {
     PALETTE_SIZE = 256,
 
     ICC_HEADER_SIZE = 128,
-    MIN_ICC_DATA_SIZE = 8,
-    MAX_ICC_DATA_SIZE = 128,
+    MIN_ICC_DATA_SIZE = 128,
+    MAX_ICC_DATA_SIZE = 128 * 2,
 
     MIN_PHYS_METER = 1, 
     MAX_PHYS_METER = 1000,
@@ -36,7 +36,9 @@ enum {
 
 };
 
-#define ICC_PROFILE_NAME "RandomICCProfile"
+#define ICC_PROFILE_NAME "sRGB IEC61966-2.1"
+
+#define ICC_PATH "icc_profiles/sRGB.icc"
 
 #define MIN_GAMA 0.1
 #define MAX_GAMA 10.0
@@ -56,6 +58,8 @@ int calculate_bytes_per_pixel(int color_type, int bit_depth);
 void make_randomize(); // !!! important
 int get_random_hw(size_t pic_size, size_t *height, size_t *width);
 int png_set_random_chunks(png_processing_t *png_prc);
+int png_remove_random_chunks(png_processing_t *png_prc);
+int png_clone_random_chunks(png_processing_t *png_prc);
 
 int png_config_IHDR(png_processing_t *png_prc, size_t pic_size);
 

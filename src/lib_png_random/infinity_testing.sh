@@ -3,11 +3,11 @@
 make all test
 
 while true; do
-    clear && ./test && pngcheck -v output.png
+    clear && ./test && pngcheck -v output_creat.png output.png
     if [ $? -ne 0 ]; then
-        echo "Программа завершилась с ошибкой. Выход из цикла."
+        echo "The program terminated with an error."
         break
     fi
 
-    sleep 0.5
+    sleep 0.1
 done

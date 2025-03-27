@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "png_random.h"
-#include "png_write.h"
+#include "png_io.h"
 #include "png_processing.h"
 
 typedef struct {
@@ -15,6 +15,13 @@ typedef struct {
     size_t charset_size;
     const char **titles;
 } Language;
+
+typedef struct {
+    char signature[4];    
+    uint32_t offset;      
+    uint32_t size;   
+} icc_tag_t;
+
 
 const int COLOR_TYPE[] = {PNG_COLOR_TYPE_GRAY, 
                           PNG_COLOR_TYPE_RGB, 
@@ -329,8 +336,37 @@ int png_set_random_chunks(png_processing_t *png_prc) {
     if (png_prc == NULL)
         return -1;
 
-    for (int i = 0; i < CHUNK_COUNT; ++i) {
-        png_prc->chunks[i].required |= rand() % 2;
+    for (int i = BASE_CHUNK_COUNT; i < CHUNK_COUNT; ++i) {
+        if (rand() % 2) {
+            png_prc->chunks[i].required = IS_REQUIRED;
+        }
+    }
+
+    return 0;     
+}
+
+int png_remove_random_chunks(png_processing_t *png_prc) {
+    if (png_prc == NULL)
+        return -1;
+
+    for (int i = BASE_CHUNK_COUNT; i < CHUNK_COUNT; ++i) {
+        if (rand() % 2) {
+            printf("Remove %s\n", png_get_chunk_name(i)); 
+            reset_chunk(&(png_prc->chunks[i]), i);
+            png_prc->chunks[i].required = NOT_REQUIRED;
+        }
+    }
+
+    return 0;     
+}
+
+int png_clone_random_chunks(png_processing_t *png_prc) {
+    if (png_prc == NULL)
+        return -1;
+
+    for (int i = BASE_CHUNK_COUNT; i < CHUNK_COUNT; ++i) {
+        if (rand() % 2 && png_prc->chunks[i].required == IS_REQUIRED)
+            png_prc->chunks[i].cloned = IS_CLONED;
     }
 
     return 0;     
@@ -489,46 +525,122 @@ int png_config_cHRM(png_processing_t *png_prc) {
 }   
 
 
+#define ICC_HEADER_SIZE 132 
+
 int generate_icc_profile(png_processing_t *png_prc) {
-    unsigned char header[ICC_HEADER_SIZE] = {0};
-    size_t data_size = rand_in_range(MIN_ICC_DATA_SIZE, MAX_ICC_DATA_SIZE); 
-    data_size = data_size - (data_size % 4); //must be data_size % 4 == 0
-    size_t profile_size = ICC_HEADER_SIZE + data_size;
-
     Vector *profile = &(png_prc->chunks[PNG_CHUNK_iCCP].info);
-    clean_vector(profile);
 
-    time_t now = time(NULL);
-    struct tm* tm = gmtime(&now);
+    uint8_t header[ICC_HEADER_SIZE] = {0};
+    uint32_t profile_size, tag_count = 3; // 3 тега: rXYZ, gXYZ, bXYZ
 
-    //Some valid data
-    *(uint32_t*)header = htonl(profile_size);
+    // --- 1. Заполнение заголовка ICC (132 байта) ---
+    // Размер профиля = заголовок + таблица тегов + данные
+    profile_size = ICC_HEADER_SIZE + sizeof(icc_tag_t) * tag_count + 36; // 36 байт данных
+    *(uint32_t*)(header + 0) = htonl(profile_size);
+    // CMM Type (Little CMS)
     memcpy(header + 4, "lcms", 4);
-    *(uint32_t*)(header + 8) = htonl(0x04200000);
+
+    // Версия (2.1.0)
+    header[8] = 0x02;
+    header[9] = 0x10;
+    header[10] = 0x00;
+
+    // Device Class (Display)
     memcpy(header + 12, "mntr", 4);
+
+    // Color Space (RGB)
     memcpy(header + 16, "RGB ", 4);
-    memcpy(header + 20, "XYZ ", 4);
 
-    *(uint16_t*)(header + 24) = htons(1900 + tm->tm_year); 
-    header[26] = tm->tm_mon + 1;    
-    header[27] = tm->tm_mday;      
-    header[28] = tm->tm_hour;       
-    header[29] = tm->tm_min;       
-    header[30] = tm->tm_sec;      
-    
+    // Дата создания
+    time_t now = time(NULL);
+    struct tm *tm = gmtime(&now);
+    *(uint16_t*)(header + 24) = htons(1900 + tm->tm_year);
+    header[26] = tm->tm_mon + 1;
+    header[27] = tm->tm_mday;
+    header[28] = tm->tm_hour;
+    header[29] = tm->tm_min;
+    header[30] = tm->tm_sec;
+
+    // Сигнатура 'acsp' (обязательно!)
     memcpy(header + 36, "acsp", 4);
+
+    // Platform (Apple)
     memcpy(header + 40, "APPL", 4);
-    *(uint32_t*)(header + 64) = htonl(0);
 
-    write_to_vector(profile, header, ICC_HEADER_SIZE);
+    // Flags (0)
+    *(uint32_t*)(header + 44) = 0;
 
-    for (size_t i = ICC_HEADER_SIZE; i < profile_size; i++) {
-        uint8_t val = rand_in_range(0, 255); //random byte
-        write_to_vector(profile, &val, sizeof(val));
-    }
+    // --- 2. Указываем количество тегов (байты 128-131) ---
+    *(uint32_t*)(header + 128) = htonl(tag_count);
+
+    // --- 3. Таблица тегов (начинается с байта 132) ---
+    icc_tag_t tags[3] = {
+        {"rXYZ", htonl(ICC_HEADER_SIZE + 0),  htonl(12)}, // Красный
+        {"gXYZ", htonl(ICC_HEADER_SIZE + 12), htonl(12)}, // Зеленый
+        {"bXYZ", htonl(ICC_HEADER_SIZE + 24), htonl(12)}  // Синий
+    };
+
+    // --- 4. Данные тегов (XYZ-координаты) ---
+    uint8_t tags_data[36] = {
+        // rXYZ (D50-адаптированные значения)
+        0x00, 0x00, 0xF6, 0xD6, // X = 0.9642
+        0x00, 0x00, 0x00, 0x00, // Y = 1.0000 
+        0x00, 0x00, 0x00, 0x00, // Z = 0.8249
+
+        // gXYZ
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+
+        // bXYZ
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00
+    };
+
+    // --- 5. Сборка профиля ---
+    write_to_vector(profile, header, ICC_HEADER_SIZE);     // Заголовок
+    write_to_vector(profile, tags, sizeof(tags));          // Таблица тегов
+    write_to_vector(profile, tags_data, sizeof(tags_data)); // Данные
 
     return 0;
 }
+
+png_byte* load_icc_profile(png_processing_t *png_prc, const char* path, png_uint_32* length) {
+
+    Vector *vector = &(png_prc->chunks[PNG_CHUNK_iCCP].info);
+
+    if (png_prc->chunks[PNG_CHUNK_iCCP].info.len) {
+        return vector->data;
+    }
+
+    FILE* f = fopen(path, "rb");
+    if (!f) return NULL;
+    
+    fseek(f, 0, SEEK_END);
+    *length = (png_uint_32)ftell(f);
+    rewind(f);
+    
+    png_byte* data = (png_byte*)malloc(*length);
+    if (!data) {
+        fclose(f);
+        return NULL;
+    }
+    
+    if (fread(data, 1, *length, f) != *length) {
+        free(data);
+        fclose(f);
+        return NULL;
+    }
+    
+    fclose(f);
+
+    write_to_vector(vector, data, *length);
+    free(data);
+
+    return vector->data;
+}
+
 
 int png_config_iCCP(png_processing_t *png_prc) {
     if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_iCCP].required != IS_REQUIRED) 
@@ -537,6 +649,12 @@ int png_config_iCCP(png_processing_t *png_prc) {
     if (png_prc->chunks[PNG_CHUNK_sRGB].valid == IS_VALID)
         return 0;
 
+    png_uint_32 icc_length;
+    png_byte* icc_data = load_icc_profile(png_prc, ICC_PATH, &icc_length);
+    if (!icc_data) {
+        return -1;
+    }
+/*
     unsigned char* profile;
     size_t profile_size;
 
@@ -546,8 +664,9 @@ int png_config_iCCP(png_processing_t *png_prc) {
 
     profile = png_prc->chunks[PNG_CHUNK_iCCP].info.data;
     profile_size = png_prc->chunks[PNG_CHUNK_iCCP].info.len;
-
-    png_set_iCCP(png_prc->png, png_prc->info, ICC_PROFILE_NAME, PNG_COMPRESSION_TYPE_BASE, profile, profile_size);
+*/
+    png_set_iCCP(png_prc->png, png_prc->info, ICC_PROFILE_NAME, 
+                 PNG_COMPRESSION_TYPE_BASE, icc_data, icc_length);
     png_prc->chunks[PNG_CHUNK_iCCP].valid = IS_VALID;
 
     return 0;
@@ -750,7 +869,8 @@ int png_config_cSTM(png_processing_t *png_prc) {
 }
 
 int is_config_chunk(PNGChunk_t *chunk) {
-    if (chunk != NULL && chunk->required == IS_REQUIRED && 
+    if (chunk != NULL && 
+        chunk->required == IS_REQUIRED && 
         chunk->valid != IS_VALID) { 
         return 1;
     } else {
@@ -803,7 +923,7 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
             return -1;
         }
     }
-    
+   
     if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_iCCP]))) {
         if (png_config_iCCP(png_prc) < 0) {
             printf("bad config iCCP\n");

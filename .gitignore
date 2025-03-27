@@ -11,6 +11,8 @@ input/compressed_corpus/*
 input/pngsuite
 input/pngsuite/*
 
+output
+output/*
 output/cov
 output/run_cmploger  
 output/run_workers

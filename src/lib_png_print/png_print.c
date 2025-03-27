@@ -130,7 +130,7 @@ void print_PNGChunk_info(PNGChunk_t *chunk) {
     } else if (chunk->required == NOT_REQUIRED) {
         printf("  required: NOT_REQUIRED\n");
     } else {
-        printf("  required: undefind\n");
+        printf("  required: UNDEFINED\n");
     }
 
     if (chunk->valid == IS_VALID) {

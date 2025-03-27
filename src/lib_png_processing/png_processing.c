@@ -1,8 +1,106 @@
 #include <png.h>
+#include <string.h>
 #include <stdlib.h>
 #include "png_processing.h"
 #include "afl_vector.h"
 #include "vector.h"
+
+enum {
+    PNG_CHUNK_NAME_SIZE = 4,
+};
+
+typedef struct {
+    int type;
+    uint8_t name[PNG_CHUNK_NAME_SIZE + 1];
+} ChunkType;
+
+const ChunkType PNG_CHUNK_TYPES[] = {
+    {PNG_CHUNK_IHDR, "IHDR"},
+    {PNG_CHUNK_IDAT, "IDAT"},
+    {PNG_CHUNK_IEND, "IEND"},
+    
+    {PNG_CHUNK_bKGD, "bKGD"},
+    {PNG_CHUNK_cHRM, "cHRM"},
+    {PNG_CHUNK_gAMA, "gAMA"},
+    {PNG_CHUNK_hIST, "hIST"},
+    {PNG_CHUNK_iTXt, "iTXt"},
+    {PNG_CHUNK_pHYs, "pHYs"},
+    {PNG_CHUNK_sBIT, "sBIT"},
+    {PNG_CHUNK_sPLT, "sPLT"},
+    {PNG_CHUNK_PLTE, "PLTE"},
+    {PNG_CHUNK_sRGB, "sRGB"},
+    {PNG_CHUNK_sTER, "sTER"},
+    {PNG_CHUNK_tEXt, "tEXt"},
+    {PNG_CHUNK_tIME, "tIME"},
+    {PNG_CHUNK_tRNS, "tRNS"},
+    {PNG_CHUNK_zTXt, "zTXt"},
+    
+    {PNG_CHUNK_cSTM, "cSTM"},
+
+
+    {PNG_CHUNK_iCCP, "iCCP"},
+};
+
+enum {
+    PNG_CHUNK_TYPES_SIZE = sizeof(PNG_CHUNK_TYPES) / sizeof(PNG_CHUNK_TYPES[0]),
+};
+
+int png_get_chunk_type(const uint8_t *name) {
+    for (int i = 0; i < PNG_CHUNK_TYPES_SIZE; ++i)  {
+        if (strncmp((const char *)&PNG_CHUNK_TYPES[i].name, (const char *)name, PNG_CHUNK_NAME_SIZE) == 0) 
+            return PNG_CHUNK_TYPES[i].type;
+    }
+
+    return -1;
+};
+
+const char *png_get_chunk_name(int type) {
+    if (type >= 0 && type < CHUNK_COUNT)
+        return (const char *)&(PNG_CHUNK_TYPES[type].name);
+    else 
+        return NULL;
+};
+
+int is_const_info(int type) {
+    if (type < PNG_CHUNK_CONST_INFO) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+int reset_chunk(PNGChunk_t *chunk, int type) {
+    if (chunk == NULL)
+        return -1;
+
+    chunk->required = UNDEFINED;
+    chunk->valid = NOT_VALID;
+    chunk->cloned = NOT_CLONED;
+
+    chunk->file_pointer = NULL;
+    chunk->file_size = 0;
+
+    if (!is_const_info(type))
+        clean_vector(&(chunk->info));
+
+    return 0;
+}
+
+int init_chunk(PNGChunk_t *chunk) {
+    if (chunk == NULL)
+        return -1;
+
+    chunk->required = UNDEFINED;
+    chunk->valid = NOT_VALID;
+    chunk->cloned = NOT_CLONED;
+
+    chunk->file_pointer = NULL;
+    chunk->file_size = 0;
+
+    init_vector(&(chunk->info), NULL, 0, 0, 0);
+
+    return 0;
+}
 
 int reset_png_processing(png_processing_t *png_prc) {
     if (png_prc == NULL)
@@ -28,9 +126,7 @@ int reset_png_processing(png_processing_t *png_prc) {
     clean_afl_vector(&(png_prc->png_out));
 
     for (int i = 0; i < CHUNK_COUNT; ++i) {
-        png_prc->chunks[i].required = NOT_REQUIRED;
-        png_prc->chunks[i].valid = NOT_VALID;
-        clean_vector(&(png_prc->chunks[i].info));
+       reset_chunk(&(png_prc->chunks[i]), i);
     }
 
     png_prc->chunks[PNG_CHUNK_IHDR].required = IS_REQUIRED;
@@ -63,9 +159,7 @@ png_processing_t *create_png_processing(void) {
     init_afl_vector(&(png_prc->png_out), NULL, 0, 0, AFL_VECTOR_HARD_MAX_SIZE);
 
     for (int i = 0; i < CHUNK_COUNT; ++i) {
-        png_prc->chunks[i].required = NOT_REQUIRED;
-        png_prc->chunks[i].valid = NOT_VALID;
-        init_vector(&(png_prc->chunks[i].info), NULL, 0, 0, 0);
+        init_chunk(&(png_prc->chunks[i]));
     }
 
     png_prc->chunks[PNG_CHUNK_IHDR].required = IS_REQUIRED;

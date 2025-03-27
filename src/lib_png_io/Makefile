@@ -17,8 +17,8 @@ LD_FLAGS =
 
 
 # compile
-TARGET = png_write.o
-CFILES = png_write.c
+TARGET = png_io.o
+CFILES = png_io.c
 
 $(TARGET): $(CFILES)
 		$(CC) $(CFLAGS) $^ -o $@ $(LD_FLAGS)
@@ -29,7 +29,7 @@ clean:
 		rm -f *.o $(TARGET)
 
 install: 
-		cp png_write.h $(INCLUDE)
+		cp png_io.h $(INCLUDE)
 		cp $(TARGET) $(BIN)
 		make clean
 

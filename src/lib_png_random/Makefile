@@ -22,7 +22,7 @@ LD_FLAGS = -lpng -lm $(SANITIZERS)
 TARGET = libpng_random.a
 CFILES = png_random.c
 PNGRAND = png_random.o
-OBJ = $(PNGRAND) $(BIN)/afl_vector.o $(BIN)/vector.o $(BIN)/png_processing.o $(BIN)/png_write.o $(BIN)/png_print.o
+OBJ = $(PNGRAND) $(BIN)/afl_vector.o $(BIN)/vector.o $(BIN)/png_processing.o $(BIN)/png_io.o $(BIN)/png_print.o
 
 test.o: test.c 
 		$(CC) $(CFLAGS) $^ -o $@

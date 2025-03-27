@@ -87,7 +87,7 @@ run_all: all
 		make run_workers > /dev/null &
 		make run_cmploger > /dev/null &
 
-all:  make_init_dirs $(WORKER) $(CMPLOGER) $(COVERAGE)
+all:  make_init_dirs $(WORKER) $(CMPLOGER) 
 
 custom_libs: make_init_dirs
 		@cd src && AFL_HEADERS=${AFL_HEADERS} make all
