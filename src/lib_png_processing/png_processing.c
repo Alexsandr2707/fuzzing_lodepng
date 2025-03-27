@@ -19,16 +19,17 @@ const ChunkType PNG_CHUNK_TYPES[] = {
     {PNG_CHUNK_IDAT, "IDAT"},
     {PNG_CHUNK_IEND, "IEND"},
     
-    {PNG_CHUNK_bKGD, "bKGD"},
     {PNG_CHUNK_cHRM, "cHRM"},
     {PNG_CHUNK_gAMA, "gAMA"},
+    {PNG_CHUNK_sRGB, "sRGB"},
+    {PNG_CHUNK_iCCP, "iCCP"},
+    {PNG_CHUNK_sBIT, "sBIT"},
+    {PNG_CHUNK_PLTE, "PLTE"},
+    {PNG_CHUNK_bKGD, "bKGD"},
     {PNG_CHUNK_hIST, "hIST"},
     {PNG_CHUNK_iTXt, "iTXt"},
     {PNG_CHUNK_pHYs, "pHYs"},
-    {PNG_CHUNK_sBIT, "sBIT"},
     {PNG_CHUNK_sPLT, "sPLT"},
-    {PNG_CHUNK_PLTE, "PLTE"},
-    {PNG_CHUNK_sRGB, "sRGB"},
     {PNG_CHUNK_sTER, "sTER"},
     {PNG_CHUNK_tEXt, "tEXt"},
     {PNG_CHUNK_tIME, "tIME"},
@@ -38,14 +39,13 @@ const ChunkType PNG_CHUNK_TYPES[] = {
     {PNG_CHUNK_cSTM, "cSTM"},
 
 
-    {PNG_CHUNK_iCCP, "iCCP"},
 };
 
 enum {
     PNG_CHUNK_TYPES_SIZE = sizeof(PNG_CHUNK_TYPES) / sizeof(PNG_CHUNK_TYPES[0]),
 };
 
-int png_get_chunk_type(const uint8_t *name) {
+int png_get_chunk_type(const char *name) {
     for (int i = 0; i < PNG_CHUNK_TYPES_SIZE; ++i)  {
         if (strncmp((const char *)&PNG_CHUNK_TYPES[i].name, (const char *)name, PNG_CHUNK_NAME_SIZE) == 0) 
             return PNG_CHUNK_TYPES[i].type;
@@ -62,10 +62,10 @@ const char *png_get_chunk_name(int type) {
 };
 
 int is_const_info(int type) {
-    if (type < PNG_CHUNK_CONST_INFO) {
-        return 0;
-    } else {
+    if (type == PNG_CHUNK_iCCP) {
         return 1;
+    } else {
+        return 0;
     }
 }
 

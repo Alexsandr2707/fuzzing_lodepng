@@ -284,7 +284,7 @@ int png_config_IHDR(png_processing_t *png_prc, size_t pic_size) {
     // color type
     color_type = COLOR_TYPE[rand() % COLOR_TYPE_SIZE];
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
-        png_prc->chunks[PNG_CHUNK_sPLT].required = IS_REQUIRED;
+        png_prc->chunks[PNG_CHUNK_PLTE].required = IS_REQUIRED;
     }
 
     // bit_depth
@@ -351,7 +351,6 @@ int png_remove_random_chunks(png_processing_t *png_prc) {
 
     for (int i = BASE_CHUNK_COUNT; i < CHUNK_COUNT; ++i) {
         if (rand() % 2) {
-            printf("Remove %s\n", png_get_chunk_name(i)); 
             reset_chunk(&(png_prc->chunks[i]), i);
             png_prc->chunks[i].required = NOT_REQUIRED;
         }
@@ -460,8 +459,8 @@ int png_config_tRNS(png_processing_t *png_prc) {
 }
 
 
-int png_config_sPLT(png_processing_t *png_prc) {
-    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_sPLT].required != IS_REQUIRED) 
+int png_config_PLTE(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_PLTE].required != IS_REQUIRED) 
         return -1;
 
     int color_type = png_get_color_type(png_prc->png, png_prc->info);
@@ -471,7 +470,7 @@ int png_config_sPLT(png_processing_t *png_prc) {
     size_t min_color = BIT8_MIN_COLOR;
     size_t max_color = BIT8_MAX_COLOR;
 
-    Vector *palette_out = &(png_prc->chunks[PNG_CHUNK_sPLT].info);
+    Vector *palette_out = &(png_prc->chunks[PNG_CHUNK_PLTE].info);
     clean_vector(palette_out);
 
     png_color palette;
@@ -484,6 +483,57 @@ int png_config_sPLT(png_processing_t *png_prc) {
     }
 
     png_set_PLTE(png_prc->png, png_prc->info, palette_out->data, PALETTE_SIZE);
+    png_prc->chunks[PNG_CHUNK_PLTE].valid = IS_VALID;
+    
+    return 0;
+}
+
+int png_config_sPLT(png_processing_t *png_prc) {
+    if (png_prc == NULL || png_prc->chunks[PNG_CHUNK_sPLT].required != IS_REQUIRED) {
+        return -1;
+    }
+
+    int color_type = png_get_color_type(png_prc->png, png_prc->info);
+    if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+        return 0;
+
+    size_t min_color = BIT8_MIN_COLOR;
+    size_t max_color = BIT8_MAX_COLOR;
+
+    int bit_depth = png_get_bit_depth(png_prc->png, png_prc->info);
+    if (bit_depth == 16) {
+        min_color = BIT16_MIN_COLOR;
+        max_color = BIT16_MAX_COLOR;
+    }
+
+    Vector *palette_out = &(png_prc->chunks[PNG_CHUNK_PLTE].info);
+    clean_vector(palette_out);
+
+    png_sPLT_entry palette;
+
+    for (int i = 0; i < PALETTE_SIZE; ++i) {
+        palette.red = rand_in_range(min_color, max_color);
+        palette.green = rand_in_range(min_color ,max_color);
+        palette.blue = rand_in_range(min_color, max_color);
+        palette.alpha = rand_in_range(min_color, max_color);
+        palette.frequency = rand_in_range(min_color, max_color);
+        
+        write_to_vector(palette_out, &palette, sizeof(palette));
+    }
+
+    png_sPLT_t splt;
+    memset(&splt, 0, sizeof(png_sPLT_t));
+    
+    size_t old_size = palette_out->len;
+    write_to_vector(palette_out, &splt, sizeof(splt)); 
+    png_sPLT_t *splt_ptr = palette_out->data + old_size;
+    
+    splt_ptr->name = "Custom SPalette";  // Название палитры
+    splt_ptr->depth = bit_depth;               // 16-битная глубина
+    splt_ptr->entries = palette_out->data;        // Цвета
+    splt_ptr->nentries = PALETTE_SIZE;  // Количество цветов
+    
+    png_set_sPLT(png_prc->png, png_prc->info, splt_ptr, 1);
     png_prc->chunks[PNG_CHUNK_sPLT].valid = IS_VALID;
     
     return 0;
@@ -903,13 +953,20 @@ int png_config_chunks(png_processing_t *png_prc, size_t pic_size) {
         }
     }
 
+    if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_PLTE]))) {
+        if (png_config_PLTE(png_prc) < 0) {
+            printf("bad config PLTEE\n");
+            return -1;
+        }
+    }
+    
     if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_sPLT]))) {
         if (png_config_sPLT(png_prc) < 0) {
             printf("bad config sPLT\n");
             return -1;
         }
     }
-    
+
     if (is_config_chunk(&(png_prc->chunks[PNG_CHUNK_gAMA]))) {
         if (png_config_gAMA(png_prc) < 0) {
             printf("bad config gAMA\n");

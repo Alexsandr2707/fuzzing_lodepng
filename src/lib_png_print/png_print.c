@@ -140,6 +140,15 @@ void print_PNGChunk_info(PNGChunk_t *chunk) {
     } else {
         printf("  valid: undefind\n");
     }
+
+    if (chunk->cloned == IS_CLONED) {
+        printf("  cloned: IS_CLONED\n");
+    } else if (chunk->valid == NOT_VALID) {
+        printf("  cloned: NOT_CLONED\n");
+    } else {
+        printf("  cloned: undefind\n");
+    }
+
     print_vector_info(&(chunk->info));
     printf("\n");
 }
@@ -198,7 +207,7 @@ void print_bKGD_info(png_processing_t *png_prc) {
             printf("  Background RGB color: (%d, %d, %d)\n", background->red, background->green, background->blue);
         }
     } else {
-        printf("No bKGD chunk found in the PNG file\n");
+        printf("No bKGD chunk found in the PNG file\nb ghjuhfvv");
     }
 
     print_chunk_end("bKGD", '-', PRINT_END_LENGTH);
@@ -223,6 +232,15 @@ void print_sPLT_info(png_processing_t *png_prc) {
     print_chunk_end("sPLT", '-', PRINT_END_LENGTH);
 }
 
+void print_PLTE_info(png_processing_t *png_prc) {
+    print_chunk_header("PLTE", '-', PRINT_HEADER_LENGTH);
+
+    if (png_prc == NULL)
+        return ;
+    print_PNGChunk_info(&(png_prc->chunks[PNG_CHUNK_PLTE]));
+
+    print_chunk_end("PLTE", '-', PRINT_END_LENGTH);
+}
 void print_gAMA_info(png_processing_t *png_prc) {
     print_chunk_header("gAMA", '-', PRINT_HEADER_LENGTH);
 
@@ -509,6 +527,9 @@ void print_png_info(png_processing_t *png_prc) {
     printf("\n");
 
     print_sPLT_info(png_prc);
+    printf("\n");
+
+    print_PLTE_info(png_prc);
     printf("\n");
 
     print_gAMA_info(png_prc);

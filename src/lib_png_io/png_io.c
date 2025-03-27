@@ -17,6 +17,27 @@ enum {
     PNG_CHUNK_INFO_SIZE = PNG_CHUNK_LEN_SIZE + PNG_CHUNK_NAME_SIZE + PNG_CHUNK_CRC_SIZE,
 };
 
+const int SAFE_COPY_CHUNKS[] = {
+//    PNG_CHUNK_tRNS,
+//    PNG_CHUNK_cHRM,
+//    PNG_CHUNK_gAMA,
+//    PNG_CHUNK_sBIT,
+//    PNG_CHUNK_sRGB,
+//    PNG_CHUNK_iCCP,
+      PNG_CHUNK_tEXt,
+      PNG_CHUNK_zTXt,
+      PNG_CHUNK_iTXt,
+//    PNG_CHUNK_bKGD,
+//    PNG_CHUNK_hIST, 
+      PNG_CHUNK_cSTM,
+//    PNG_CHUNK_pHYs,
+      PNG_CHUNK_sPLT,
+//    PNG_CHUNK_tIME,
+};
+
+enum {
+    SAFE_COPY_CHUNKS_SIZE = sizeof(SAFE_COPY_CHUNKS) / sizeof(SAFE_COPY_CHUNKS[0]),
+};
 
 typedef struct {
     const unsigned char *data;
@@ -24,29 +45,46 @@ typedef struct {
     size_t offset;
 } MemoryReaderState;
 
+int is_safe_copy(int type) {
+    for(int i = 0; i < SAFE_COPY_CHUNKS_SIZE; ++i) {
+       if (SAFE_COPY_CHUNKS[i] == type) 
+           return 1;
+    }
+
+    return 0;
+}
 
 int png_get_offset_info(png_processing_t *png_prc, png_bytep file, size_t file_size) {
     size_t chunk_offset = PNG_SIG_SIZE;
     uint32_t chunk_length = 0;
+    char name[PNG_CHUNK_NAME_SIZE + 1] = {};
+    int chunk_type = 0;
 
     while (chunk_offset + PNG_CHUNK_INFO_SIZE <= file_size && 
           (chunk_length = *(uint32_t *) (file + chunk_offset))) {
-        int chunk_type = png_get_chunk_type(file + chunk_offset + PNG_CHUNK_LEN_SIZE);
+        strncpy((char *)&name, (char *)file + chunk_offset + PNG_CHUNK_LEN_SIZE, PNG_CHUNK_NAME_SIZE);
+        chunk_type = png_get_chunk_type((char *)&name);
         chunk_length = ntohl(chunk_length);
-        
-
         if (chunk_type < 0) {
+            chunk_offset += chunk_length + PNG_CHUNK_INFO_SIZE;
             continue;
         }
 
         png_prc->chunks[chunk_type].file_pointer = file + chunk_offset;
         png_prc->chunks[chunk_type].file_size = chunk_length + PNG_CHUNK_INFO_SIZE;
-        
+        chunk_offset += chunk_length + PNG_CHUNK_INFO_SIZE;
     }
 
-    if (chunk_length == 0 && 
-        png_get_chunk_type(file + chunk_offset + PNG_CHUNK_LEN_SIZE) != PNG_CHUNK_IEND)
+    strncpy((char *)&name, (char *)file + chunk_offset + PNG_CHUNK_LEN_SIZE, PNG_CHUNK_NAME_SIZE);
+    chunk_type = png_get_chunk_type((char *)&name);
+
+    if (chunk_length == 0 && chunk_type != PNG_CHUNK_IEND)
         return -1;
+
+    chunk_length = ntohl(chunk_length);
+
+    png_prc->chunks[chunk_type].file_pointer = file + chunk_offset;
+    png_prc->chunks[chunk_type].file_size = chunk_length + PNG_CHUNK_INFO_SIZE;
 
     return 0;
 }
@@ -639,6 +677,54 @@ png_bytep *make_row_pointers(png_processing_t *png_prc, png_bytep pic) {
     return row_pointers;
 }
 
+int clone_chunk(AFLVector *vector, png_processing_t *png_prc, int type) {
+    uint8_t *file_pointer = png_prc->chunks[type].file_pointer;
+    size_t file_size = png_prc->chunks[type].file_size;
+
+    if (write_to_afl_vector(vector, file_pointer, file_size) < 0)
+        return -1;
+
+    return 0;
+}
+
+int png_make_clones(png_processing_t *png_prc) {
+    if (png_prc == NULL)
+        return -1;
+
+    png_get_offset_info(png_prc, png_prc->png_out.data, png_prc->png_out.len);
+
+    AFLVector new_png_out;
+    init_afl_vector(&new_png_out, NULL, 0, 0, 0);
+    
+    write_to_afl_vector(&new_png_out, png_prc->png_out.data, PNG_SIG_SIZE);
+
+    clone_chunk(&new_png_out, png_prc, PNG_CHUNK_IHDR);
+
+    for (int i = BASE_CHUNK_COUNT; i < CHUNK_COUNT; ++i) {
+        if (png_prc->chunks[i].valid == IS_VALID && 
+            png_prc->chunks[i].required == IS_REQUIRED) {
+            clone_chunk(&new_png_out, png_prc, i);
+        }
+    }
+
+    for (int i = 0; i < SAFE_COPY_CHUNKS_SIZE; ++i) {
+        int type = SAFE_COPY_CHUNKS[i];
+
+        if (png_prc->chunks[type].valid == IS_VALID && 
+            png_prc->chunks[type].required == IS_REQUIRED &&
+            png_prc->chunks[type].cloned == IS_CLONED) {
+            clone_chunk(&new_png_out, png_prc, type);
+        }
+    }
+
+    clone_chunk(&new_png_out, png_prc, PNG_CHUNK_IDAT);
+    clone_chunk(&new_png_out, png_prc, PNG_CHUNK_IEND);
+    
+    deinit_afl_vector(&(png_prc->png_out), AFL_VECTOR_STATIC);
+    png_prc->png_out = new_png_out;
+
+    return 0;
+}
 
 int png_write(png_processing_t *png_prc, png_bytep pic) {
     AFLVector *vector = &(png_prc->png_out);
@@ -659,8 +745,9 @@ int png_write(png_processing_t *png_prc, png_bytep pic) {
         free(row_pointers);
     } else {
         png_write_png(png_prc->png, png_prc->info, PNG_TRANSFORM_IDENTITY, NULL);
-
         free_row_pointers(png_prc);
+
+        png_make_clones(png_prc);
     }
 
     return 0;
