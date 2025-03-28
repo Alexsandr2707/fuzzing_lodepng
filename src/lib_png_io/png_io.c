@@ -21,6 +21,7 @@ enum {
 
 const int SAFE_COPY_CHUNKS[] = {
     //unsafe to add all
+/*
     PNG_CHUNK_IHDR, // Png header
     PNG_CHUNK_IDAT, // Data 
     PNG_CHUNK_IEND, // End chunk
@@ -43,14 +44,14 @@ const int SAFE_COPY_CHUNKS[] = {
     PNG_CHUNK_zTXt,   // Compressed textual data - IMPLEMENTED
 
     PNG_CHUNK_cSTM,   // Custom chunk - IMPLEMENTED
-    
-/* really safe
+*/  
+    // really safe
     PNG_CHUNK_tEXt,
     PNG_CHUNK_zTXt,
     PNG_CHUNK_iTXt,
     PNG_CHUNK_cSTM,
     PNG_CHUNK_sPLT,
-*/
+
 };
 
 enum {
