@@ -29,6 +29,7 @@
 ![image](docs/fuzzbench/afl-x-aflplusplus/bloaty_fuzz_target_coverage_growth.svg)
 
 <br>
+
 ## РЕЗЮМЕ ИСПЫТАНИЯ НА БЕНЧМАРКЕ LIBPNG_LIBPNG_READ_FUZZER 
 <br>
 
