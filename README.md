@@ -187,6 +187,14 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size);
 
 После добавления операций чтения, удаления, добавления, клонирования, случайных чанков покрытие кода не изменилось, фаззер работает на том же уровне эффективности. О улучшениях можно сказать только интуитивно. В первые минуты работы фаззер более активно находит новые пути. 
 <br>
+![main](docs/1h_upgraded_custom_mutator/pics/1h_upgraded_main.jpg)
+
+![worker](docs/1h_upgraded_custom_mutator/pics/1h_upgraded_worker1.jpg)
+
+![cmplog](docs/1h_upgraded_custom_mutator/pics/1h_upgraded_cmplog.jpg)
+
+![lines](docs/1h_upgraded_custom_mutator/pics/1h_upgraded_lines.png)
+<br><br>
 
 
 ## О РЕЗУЛЬТАТАХ ФАЗЗИНГА
