@@ -36,7 +36,8 @@
 ![image](docs/fuzzbench/afl-x-aflplusplus/libpng_libpng_read_fuzzer_ranking.svg)
 
 <br>
-### Средний рост покрытия с течением времени<br>
+
+### Средний рост покрытия с течением времени <br>
 
 ![image](docs/fuzzbench/afl-x-aflplusplus/libpng_libpng_read_fuzzer_coverage_growth.svg)
 
