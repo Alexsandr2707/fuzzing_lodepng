@@ -20,21 +20,37 @@ enum {
 };
 
 const int SAFE_COPY_CHUNKS[] = {
-/*    PNG_CHUNK_tRNS,
-    PNG_CHUNK_cHRM,
-    PNG_CHUNK_gAMA,
-    PNG_CHUNK_sBIT,
-    PNG_CHUNK_sRGB,
-    PNG_CHUNK_iCCP,*/
+    //unsafe to add all
+    PNG_CHUNK_IHDR, // Png header
+    PNG_CHUNK_IDAT, // Data 
+    PNG_CHUNK_IEND, // End chunk
+
+    PNG_CHUNK_cHRM,  // Primary chromaticities and white point - IMPLEMENTED
+    PNG_CHUNK_gAMA,  // Image gamma - IMPLEMENTED
+    PNG_CHUNK_sRGB,  // Standard RGB color space - IMPLEMENTED
+    PNG_CHUNK_iCCP,  // Embedded ICC profile - IMPLEMENTED
+    PNG_CHUNK_sBIT,  // Significant bits - IMPLEMENTED
+    PNG_CHUNK_PLTE,  // Suggested palette - IMPLEMENTED
+    PNG_CHUNK_bKGD,  // Background color - IMPLEMENTED
+    PNG_CHUNK_hIST,  // Image histogram - NOT IMPLEMENTED
+    PNG_CHUNK_iTXt,  // International textual data - IMPLEMENTED
+    PNG_CHUNK_pHYs,  // Physical pixel dimensions - IMPLEMENTED
+    PNG_CHUNK_sPLT,  // Suggested palette - IMPLEMENTED
+    PNG_CHUNK_sTER,  // Stereo image indicator - NOT IMPLEMENTED
+    PNG_CHUNK_tEXt,  // Textual data - IMPLEMENTED
+    PNG_CHUNK_tIME,  // Image last-modification time - IMPLEMENTED
+    PNG_CHUNK_tRNS,  // Transparency - IMPLEMENTED
+    PNG_CHUNK_zTXt,   // Compressed textual data - IMPLEMENTED
+
+    PNG_CHUNK_cSTM,   // Custom chunk - IMPLEMENTED
+    
+/* really safe
     PNG_CHUNK_tEXt,
     PNG_CHUNK_zTXt,
     PNG_CHUNK_iTXt,
-/*    PNG_CHUNK_bKGD,
-    PNG_CHUNK_hIST, */
     PNG_CHUNK_cSTM,
-//    PNG_CHUNK_pHYs, 
     PNG_CHUNK_sPLT,
-//    PNG_CHUNK_tIME,
+*/
 };
 
 enum {
