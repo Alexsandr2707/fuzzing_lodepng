@@ -7,6 +7,8 @@
 #include "png_random.h"
 #include "afl_vector.h"
 
+#define DEBUG 0
+
 enum {
     PNG_SIG_SIZE = 8,
 
@@ -50,6 +52,7 @@ static void silent_error_fn(png_structp png_ptr, png_const_charp error_msg) {
 }
 
 static void silent_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {
+     longjmp(png_jmpbuf(png_ptr), 1);
 }
 
 
@@ -619,7 +622,7 @@ void png_read_memory_data(png_structp png_ptr, png_bytep out, png_size_t length)
     MemoryReaderState *state = (MemoryReaderState*)png_get_io_ptr(png_ptr);
     
     if (state->offset + length > state->size) {
-        return;
+        length = state->size - state->offset;
     }
     
     memcpy(out, state->data + state->offset, length);
@@ -627,7 +630,7 @@ void png_read_memory_data(png_structp png_ptr, png_bytep out, png_size_t length)
 }
 
 
-int png_read(png_processing_t *png_prc, uint8_t *file, size_t file_size) {
+int png_read(png_processing_t *png_prc, const uint8_t *file, size_t file_size) {
 
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,  
                                                  silent_error_fn, 
@@ -643,6 +646,8 @@ int png_read(png_processing_t *png_prc, uint8_t *file, size_t file_size) {
     }
 
     if (setjmp(png_jmpbuf(png_ptr))) {
+        if (DEBUG) 
+            fprintf(stderr, "png_read error\n");
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
         return -1;
     }
@@ -743,6 +748,8 @@ int png_write(png_processing_t *png_prc, png_bytep pic) {
     vector->len = 0;
 
     if (setjmp(png_jmpbuf(png_prc->png))) {
+        if (DEBUG) 
+            fprintf(stderr, "png_write error\n");
         return -1;
     }
 

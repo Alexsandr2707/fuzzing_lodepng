@@ -1062,6 +1062,7 @@ int make_random_png(png_processing_t *png_prc, uint8_t *pic, size_t pic_size) {
         return -1;
     }
 
+    reset_png_processing(png_prc);
     png_set_random_chunks(png_prc);
 
     if (png_config_chunks(png_prc, pic_size) < 0) {

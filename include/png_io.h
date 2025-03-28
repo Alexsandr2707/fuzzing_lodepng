@@ -9,6 +9,6 @@ int png_get_offset_info(png_processing_t *png_prc, png_bytep file, size_t file_s
 png_bytep *make_row_pointers(png_processing_t *png_prc, png_bytep pic);
 int png_write(png_processing_t *png_prc, png_bytep pic);
 
-int png_read(png_processing_t *png_prc, uint8_t *file, size_t file_size);
+int png_read(png_processing_t *png_prc, const uint8_t *file, size_t file_size);
 
 #endif

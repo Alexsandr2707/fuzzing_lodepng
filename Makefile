@@ -1,6 +1,6 @@
 # directories
 INCLUDE = include
-INPUT = - #input/start_input
+INPUT = input/start_input
 OUTPUT = output 
 LIB = lib
 SRC = src
@@ -61,16 +61,21 @@ $(WORKER): $(CXXFILES)
 run_main: $(WORKER)
 		AFL_FINAL_SYNC=1 \
 		$(CUSTOM_MUTATORS) \
-		$(FUZZER) $(MAIN_FUZZER_FLAGS) -M $@ -- $(WORKER)  @@ 2> /dev/null
+		$(FUZZER) $(MAIN_FUZZER_FLAGS) -M $@ -- $(WORKER)  @@ 
 
 
-run_workers: $(WORKER)
+run_worker1: $(WORKER) 
 		$(CUSTOM_MUTATORS) \
-		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(WORKER) @@ 2> /dev/null
+		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(WORKER) @@ 
+
+run_worker2: $(WORKER) 
+		$(CUSTOM_MUTATORS) \
+		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(WORKER) @@ 
+
 
 run_cmploger: $(CMPLOGER)
 		$(CUSTOM_MUTATORS) \
-		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(CMPLOGER) @@ 2> /dev/null
+		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(CMPLOGER) @@ 
 
 
 run_coverage: 
@@ -84,7 +89,8 @@ make_init_dirs:
 
 run_all: all
 		make run_main &
-		make run_workers > /dev/null &
+		make run_worker1 > /dev/null &
+		make run_worker2 > /dev/null &
 		make run_cmploger > /dev/null &
 
 all:  make_init_dirs $(WORKER) $(CMPLOGER) 

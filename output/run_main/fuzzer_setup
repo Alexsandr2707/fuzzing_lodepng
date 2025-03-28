@@ -8,4 +8,4 @@ AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1
 AFL_TRY_AFFINITY=1
 AFL_SKIP_CPUFREQ=1
 # command line:
-'afl-fuzz' '-t' '100' '-i' '-' '-o' 'output' '-x' 'dictionaries/png.dict' '-M' 'run_main' '--' 'bin/worker' '@@'
+'afl-fuzz' '-t' '100' '-i' 'input/start_input' '-o' 'output' '-x' 'dictionaries/png.dict' '-M' 'run_main' '--' 'bin/worker' '@@'

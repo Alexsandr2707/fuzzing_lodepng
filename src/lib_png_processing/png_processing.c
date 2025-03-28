@@ -5,6 +5,8 @@
 #include "afl_vector.h"
 #include "vector.h"
 
+#define DEBUG 0
+
 enum {
     PNG_CHUNK_NAME_SIZE = 4,
 };
@@ -42,9 +44,11 @@ const ChunkType PNG_CHUNK_TYPES[] = {
 };
 
 static void silent_error_fn(png_structp png_ptr, png_const_charp error_msg) {
+    longjmp(png_jmpbuf(png_ptr), 1);
 }
 
 static void silent_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {
+    longjmp(png_jmpbuf(png_ptr), 1);
 }
 
 enum {
@@ -127,6 +131,13 @@ int reset_png_processing(png_processing_t *png_prc) {
             return -1;
     }
 
+    if (setjmp(png_jmpbuf(png))) {    
+        if (DEBUG)
+            fprintf(stderr, "png_reset error\n");
+        png_destroy_read_struct(&png, &info, NULL);
+             return -1;
+    }
+
     
     png_prc->png = png;
     png_prc->info = info;
@@ -162,6 +173,13 @@ png_processing_t *create_png_processing(void) {
         free(png_prc);
         png_destroy_write_struct(&png, NULL);
             return NULL;
+    }
+
+    if (setjmp(png_jmpbuf(png))) {    
+        if (DEBUG)
+            fprintf(stderr, "png_creat error\n");
+        png_destroy_read_struct(&png, &info, NULL);
+             return NULL;
     }
 
     png_prc->png = png;
