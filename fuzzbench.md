@@ -22,12 +22,12 @@
 
 ![image](docs/fuzzbench/afl-x-aflplusplus/bloaty_fuzz_target_ranking.svg)
 
-<br><br>
+<br>
 ### Средний рост покрытия с течением времени <br>
 
 ![image](docs/fuzzbench/afl-x-aflplusplus/bloaty_fuzz_target_coverage_growth.svg)
 
-<br><br>
+<br>
 ## РЕЗЮМЕ ИСПЫТАНИЯ НА БЕНЧМАРКЕ LIBPNG_LIBPNG_READ_FUZZER 
 <br>
 
@@ -35,12 +35,12 @@
 
 ![image](docs/fuzzbench/afl-x-aflplusplus/libpng_libpng_read_fuzzer_ranking.svg)
 
-<br><br>
+<br>
 ### Средний рост покрытия с течением времени<br>
 
 ![image](docs/fuzzbench/afl-x-aflplusplus/libpng_libpng_read_fuzzer_coverage_growth.svg)
 
-<br><br>
+<br>
 
 
 ## ВЫВОД
