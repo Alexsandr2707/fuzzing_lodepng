@@ -41,6 +41,12 @@ const ChunkType PNG_CHUNK_TYPES[] = {
 
 };
 
+static void silent_error_fn(png_structp png_ptr, png_const_charp error_msg) {
+}
+
+static void silent_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {
+}
+
 enum {
     PNG_CHUNK_TYPES_SIZE = sizeof(PNG_CHUNK_TYPES) / sizeof(PNG_CHUNK_TYPES[0]),
 };
@@ -108,7 +114,9 @@ int reset_png_processing(png_processing_t *png_prc) {
 
     png_destroy_write_struct(&(png_prc->png), &(png_prc->info));
 
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,  
+                                              silent_error_fn, 
+                                              silent_warning_fn);
     if (!png) {
         return -1;
     }
@@ -141,7 +149,9 @@ png_processing_t *create_png_processing(void) {
     if (png_prc == NULL) 
         return NULL;
 
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, 
+                                               silent_error_fn, 
+                                               silent_warning_fn);
     if (!png) {
         free(png_prc);
         return NULL;

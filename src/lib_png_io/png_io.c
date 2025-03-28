@@ -18,21 +18,21 @@ enum {
 };
 
 const int SAFE_COPY_CHUNKS[] = {
-//    PNG_CHUNK_tRNS,
-//    PNG_CHUNK_cHRM,
-//    PNG_CHUNK_gAMA,
-//    PNG_CHUNK_sBIT,
-//    PNG_CHUNK_sRGB,
-//    PNG_CHUNK_iCCP,
-      PNG_CHUNK_tEXt,
-      PNG_CHUNK_zTXt,
-      PNG_CHUNK_iTXt,
-//    PNG_CHUNK_bKGD,
-//    PNG_CHUNK_hIST, 
-      PNG_CHUNK_cSTM,
-//    PNG_CHUNK_pHYs,
-      PNG_CHUNK_sPLT,
-//    PNG_CHUNK_tIME,
+    PNG_CHUNK_tRNS,
+    PNG_CHUNK_cHRM,
+    PNG_CHUNK_gAMA,
+    PNG_CHUNK_sBIT,
+    PNG_CHUNK_sRGB,
+    PNG_CHUNK_iCCP,
+    PNG_CHUNK_tEXt,
+    PNG_CHUNK_zTXt,
+    PNG_CHUNK_iTXt,
+    PNG_CHUNK_bKGD,
+    PNG_CHUNK_hIST, 
+    PNG_CHUNK_cSTM,
+    PNG_CHUNK_pHYs,
+    PNG_CHUNK_sPLT,
+    PNG_CHUNK_tIME,
 };
 
 enum {
@@ -44,6 +44,14 @@ typedef struct {
     size_t size;
     size_t offset;
 } MemoryReaderState;
+
+static void silent_error_fn(png_structp png_ptr, png_const_charp error_msg) {
+     longjmp(png_jmpbuf(png_ptr), 1);
+}
+
+static void silent_warning_fn(png_structp png_ptr, png_const_charp warning_msg) {
+}
+
 
 int is_safe_copy(int type) {
     for(int i = 0; i < SAFE_COPY_CHUNKS_SIZE; ++i) {
@@ -75,17 +83,19 @@ int png_get_offset_info(png_processing_t *png_prc, png_bytep file, size_t file_s
         chunk_offset += chunk_length + PNG_CHUNK_INFO_SIZE;
     }
 
-    strncpy((char *)&name, (char *)file + chunk_offset + PNG_CHUNK_LEN_SIZE, PNG_CHUNK_NAME_SIZE);
-    chunk_type = png_get_chunk_type((char *)&name);
+    if (chunk_offset + PNG_CHUNK_INFO_SIZE <= file_size) {
+        strncpy((char *)&name, (char *)file + chunk_offset + PNG_CHUNK_LEN_SIZE, PNG_CHUNK_NAME_SIZE);
+        chunk_type = png_get_chunk_type((char *)&name);
 
-    if (chunk_length == 0 && chunk_type != PNG_CHUNK_IEND)
-        return -1;
+        if ((chunk_length == 0 && chunk_type != PNG_CHUNK_IEND) ||
+            chunk_type < 0)
+            return -1;
 
-    chunk_length = ntohl(chunk_length);
+        chunk_length = ntohl(chunk_length);
 
-    png_prc->chunks[chunk_type].file_pointer = file + chunk_offset;
-    png_prc->chunks[chunk_type].file_size = chunk_length + PNG_CHUNK_INFO_SIZE;
-
+        png_prc->chunks[chunk_type].file_pointer = file + chunk_offset;
+        png_prc->chunks[chunk_type].file_size = chunk_length + PNG_CHUNK_INFO_SIZE;
+    }
     return 0;
 }
 
@@ -619,7 +629,9 @@ void png_read_memory_data(png_structp png_ptr, png_bytep out, png_size_t length)
 
 int png_read(png_processing_t *png_prc, uint8_t *file, size_t file_size) {
 
-    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,  
+                                                 silent_error_fn, 
+                                                 silent_warning_fn);
     if (!png_ptr) {
         return -1;
     }
@@ -729,6 +741,10 @@ int png_make_clones(png_processing_t *png_prc) {
 int png_write(png_processing_t *png_prc, png_bytep pic) {
     AFLVector *vector = &(png_prc->png_out);
     vector->len = 0;
+
+    if (setjmp(png_jmpbuf(png_prc->png))) {
+        return -1;
+    }
 
     png_bytep *row_pointers = NULL;
 

@@ -1,6 +1,6 @@
 # directories
 INCLUDE = include
-INPUT = input/start_input
+INPUT = - #input/start_input
 OUTPUT = output 
 LIB = lib
 SRC = src
@@ -61,16 +61,16 @@ $(WORKER): $(CXXFILES)
 run_main: $(WORKER)
 		AFL_FINAL_SYNC=1 \
 		$(CUSTOM_MUTATORS) \
-		$(FUZZER) $(MAIN_FUZZER_FLAGS) -M $@ -- $(WORKER)  @@
+		$(FUZZER) $(MAIN_FUZZER_FLAGS) -M $@ -- $(WORKER)  @@ 2> /dev/null
 
 
 run_workers: $(WORKER)
 		$(CUSTOM_MUTATORS) \
-		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(WORKER) @@ 
+		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(WORKER) @@ 2> /dev/null
 
 run_cmploger: $(CMPLOGER)
 		$(CUSTOM_MUTATORS) \
-		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(CMPLOGER) @@ 
+		$(FUZZER) $(WORKER_FUZZER_FLAGS) -S $@ -- $(CMPLOGER) @@ 2> /dev/null
 
 
 run_coverage: 

@@ -661,6 +661,7 @@ png_byte* load_icc_profile(png_processing_t *png_prc, const char* path, png_uint
     Vector *vector = &(png_prc->chunks[PNG_CHUNK_iCCP].info);
 
     if (png_prc->chunks[PNG_CHUNK_iCCP].info.len) {
+        *length = png_prc->chunks[PNG_CHUNK_iCCP].info.len;
         return vector->data;
     }
 
