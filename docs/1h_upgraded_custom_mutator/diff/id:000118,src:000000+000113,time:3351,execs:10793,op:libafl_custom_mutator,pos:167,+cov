@@ -1,0 +1,19 @@
+diff id:000117,src:000000+000102,time:3343,execs:10779,op:libafl_custom_mutator,pos:167 -> id:000118,src:000000+000113,time:3351,execs:10793,op:libafl_custom_mutator,pos:167,+cov
+Src file: /fuzzing_lodepng/utils/coverage/source/lodepng.cpp
+  New 'function' coverage: _ZL20inflateNoCompressionP8ucvectorP16LodePNGBitReaderPK25LodePNGDecompressSettings()
+  New 'line' coverage: 1331
+  New 'line' coverage: 1333
+  New 'line' coverage: 1334
+  New 'line' coverage: 1335
+  New 'line' coverage: 1338
+  New 'line' coverage: 1341
+  New 'line' coverage: 1342
+  New 'line' coverage: 1343
+  New 'line' coverage: 1346
+  New 'line' coverage: 1350
+  New 'line' coverage: 1353
+  New 'line' coverage: 1356
+  New 'line' coverage: 1357
+  New 'line' coverage: 1358
+  New 'line' coverage: 1361
+  New 'line' coverage: 1363

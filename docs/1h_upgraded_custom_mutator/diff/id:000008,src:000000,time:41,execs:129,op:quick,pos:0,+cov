@@ -1,0 +1,10 @@
+diff id:000007,time:0,execs:0,orig:oi9n2c16.png -> id:000008,src:000000,time:41,execs:129,op:quick,pos:0,+cov
+Src file: /fuzzing_lodepng/utils/coverage/source/lodepng.cpp
+  New 'function' coverage: _Z18lodepng_error_textj()
+  New 'line' coverage: 4392
+  New 'line' coverage: 6885
+  New 'line' coverage: 6886
+  New 'line' coverage: 6913
+Src file: /fuzzing_lodepng/utils/coverage/source/main.cpp
+  New 'line' coverage: 287
+  New 'line' coverage: 288

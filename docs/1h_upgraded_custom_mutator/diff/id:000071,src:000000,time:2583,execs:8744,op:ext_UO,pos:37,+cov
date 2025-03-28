@@ -1,0 +1,17 @@
+diff id:000070,src:000000,time:2578,execs:8730,op:ext_UO,pos:37,+cov -> id:000071,src:000000,time:2583,execs:8744,op:ext_UO,pos:37,+cov
+Src file: /fuzzing_lodepng/utils/coverage/source/lodepng.cpp
+  New 'function' coverage: _ZL14readChunk_iCCPP11LodePNGInfoPK22LodePNGDecoderSettingsPKhm()
+  New 'line' coverage: 5094
+  New 'line' coverage: 5096
+  New 'line' coverage: 5097
+  New 'line' coverage: 5098
+  New 'line' coverage: 5100
+  New 'line' coverage: 5102
+  New 'line' coverage: 5104
+  New 'line' coverage: 5105
+  New 'line' coverage: 5107
+  New 'line' coverage: 5108
+  New 'line' coverage: 5109
+  New 'line' coverage: 5414
+  New 'line' coverage: 5415
+  New 'line' coverage: 6976

@@ -1,0 +1,4 @@
+diff id:000027,src:000000,time:86,execs:295,op:quick,pos:33,+cov -> id:000028,src:000000,time:88,execs:303,op:quick,pos:34,+cov
+Src file: /fuzzing_lodepng/utils/coverage/source/lodepng.cpp
+  New 'line' coverage: 5342
+  New 'line' coverage: 6953
