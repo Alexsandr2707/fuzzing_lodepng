@@ -9,5 +9,5 @@ while true; do
         break
     fi
 
-    sleep 0.5
+#    sleep 0.5
 done
