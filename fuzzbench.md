@@ -16,12 +16,9 @@
 <br><br>
 
 ## РЕЗЮМЕ ИСПЫТАНИЯ НА BLOATY_FUZZ_TARGET 
-<br><br>
-
-
-
-### Рейтинг по медианному охвату
 <br>
+
+### Рейтинг по медианному охвату <br>
 
 ![image](docs/fuzzbench/afl-x-aflplusplus/bloaty_fuzz_target_ranking.svg)
 
