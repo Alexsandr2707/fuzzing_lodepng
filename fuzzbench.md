@@ -29,14 +29,16 @@
 
 <br><br>
 ## РЕЗЮМЕ ИСПЫТАНИЯ НА LIBPNG_LIBPNG_READ_FUZZER 
-<br><br>
-
-### Рейтинг по медианному охвату
 <br>
 
+### Рейтинг по медианному охвату <br>
+
+![image](docs/fuzzbench/afl-x-aflplusplus/libpng_libpng_read_fuzzer_ranking.svg)
+
 <br><br>
-### Средний рост покрытия с течением времени
-<br>
+### Средний рост покрытия с течением времени<br>
+
+![image](docs/fuzzbench/afl-x-aflplusplus/libpng_libpng_read_fuzzer_coverage_growth.svg)
 
 <br><br>
 
