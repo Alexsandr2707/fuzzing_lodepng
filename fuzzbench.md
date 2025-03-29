@@ -52,7 +52,7 @@
 
 ### Рейтинг по медианному охвату <br>
 
-![image](docs/fuzzbench/5h_afl-x-aflplusplus/bloaty_fuzz_target_ranking.svg)
+![image](docs/fuzzbench/5h_afl_x_aflplusplus/bloaty_fuzz_target_ranking.svg)
 
 <br>
 
