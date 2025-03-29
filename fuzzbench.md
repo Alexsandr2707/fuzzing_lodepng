@@ -58,7 +58,7 @@
 
 ### Средний рост покрытия с течением времени <br>
 
-![image](docs/fuzzbench/5h_afl-x-aflplusplus/bloaty_fuzz_target_coverage_growth.svg)
+![image](docs/fuzzbench/5h_afl_x_aflplusplus/bloaty_fuzz_target_coverage_growth.svg)
 
 <br>
 
