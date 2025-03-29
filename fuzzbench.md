@@ -17,7 +17,7 @@
 ![image](https://github.com/user-attachments/assets/e2d7301a-988f-45fb-b429-c63a2af0608c)
 <br><br>
 
-## РЕЗЮМЕ ИСПЫТАНИЯ НА БЕНЧМАРКЕ BLOATY_FUZZ_TARGET 
+## РЕЗЮМЕ ИСПЫТАНИЯ НА БЕНЧМАРКЕ BLOATY_FUZZ_TARGET (1 час)
 <br>
 
 ### Рейтинг по медианному охвату <br>
@@ -32,7 +32,7 @@
 
 <br>
 
-## РЕЗЮМЕ ИСПЫТАНИЯ НА БЕНЧМАРКЕ LIBPNG_LIBPNG_READ_FUZZER 
+## РЕЗЮМЕ ИСПЫТАНИЯ НА БЕНЧМАРКЕ LIBPNG_LIBPNG_READ_FUZZER (1 час)
 <br>
 
 ### Рейтинг по медианному охвату <br>
@@ -47,8 +47,43 @@
 
 <br>
 
+## РЕЗЮМЕ ИСПЫТАНИЯ НА БЕНЧМАРКЕ BLOATY_FUZZ_TARGET (5 часов)
+<br>
+
+### Рейтинг по медианному охвату <br>
+
+![image](docs/fuzzbench/5h_afl-x-aflplusplus/bloaty_fuzz_target_ranking.svg)
+
+<br>
+
+### Средний рост покрытия с течением времени <br>
+
+![image](docs/fuzzbench/5h_afl-x-aflplusplus/bloaty_fuzz_target_coverage_growth.svg)
+
+<br>
+
+## РЕЗЮМЕ ИСПЫТАНИЯ НА БЕНЧМАРКЕ LIBPNG_LIBPNG_READ_FUZZER (5 часов)
+<br>
+
+### Рейтинг по медианному охвату <br>
+
+![image](docs/fuzzbench/5h_afl-x-aflplusplus/libpng_libpng_read_fuzzer_ranking.svg)
+
+<br>
+
+### Средний рост покрытия с течением времени <br>
+
+![image](docs/fuzzbench/5h_afl-x-aflplusplus/libpng_libpng_read_fuzzer_coverage_growth.svg)
+
+<br>
+
+
+
 
 ## ВЫВОД
 <br>
 Такое количество испытаний и времени потраченного на тестирование фаззера не является объективным показателем эффективности фаззеров,
-на основе полученных результатов сложно сделать вывод об эффективности afl++ по сравнению с afl. В bloaty_fuzz_target afl++ показал себя хуже чем afl (однако, как показывают отчеты, на больше промежутке afl++ выиграет), а в libpng_libpng_read_fuzzer наоборот. 
+на основе полученных результатов сложно сделать вывод об эффективности afl++ по сравнению с afl. В bloaty_fuzz_target afl++ показал себя хуже чем afl (однако, как показывают отчеты и результаты 5 часового эксперимента, на большем промежутке afl++ выиграет), а в libpng_libpng_read_fuzzer наоборот. 
+<br>
+
+Изходя из результатов 5 часового эксперимента, можно сказать, что afl++ выигрывает afl.
