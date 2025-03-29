@@ -5,6 +5,7 @@
 Бенчмарки: libpng_libpng_read_fuzzer и bloaty_fuzz_target <br>
 Количество испытаний: 1 <br>
 Время одного испытания: 1 час <br>
+
 Все файлы отчета можно увидеть в директории [afl_x_aflplusplus](docs/fuzzbench/afl-x-aflplusplus)
 <br><br>
 
