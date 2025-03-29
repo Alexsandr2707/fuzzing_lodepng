@@ -11,6 +11,11 @@
 <br>
 
 !!! Добавлены новые результаты 5 часового эксперимента в директории [5h_afl_aflplusplus](docs/fuzzbench/5h_afl_x_aflplusplus)!!!  <br>
+Я для этого выбрал 2 фаззера: afl и afl++ <br>
+Бенчмарки: libpng_libpng_read_fuzzer и bloaty_fuzz_target <br>
+Количество испытаний: 1 <br>
+Время одного испытания: 5 час <br>
+<br><br>
 
 ### Демонстрация работы фаззеров 
 
